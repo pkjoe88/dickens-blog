@@ -3,12 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vigor 2135 + VigorAP 1062C 設定教學 - Dickens 的生活雜記</title>
-<meta name="description" content="Vigor 2135 搭配 VigorAP 1062C 的完整設定指南">
+<title>Vigor 2135 + VigorAP 1062C 完整設定教學 - Dickens 的生活雜記</title>
+<meta name="description" content="Vigor 2135 搭配 VigorAP 1062C 的完整圖文設定教學">
 <link rel="stylesheet" href="../css/style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  /* Tutorial-specific styles */
+  .tut-topology { background: var(--bg-secondary); border: 2px solid var(--border); border-radius: var(--radius); padding: 24px; margin: 24px 0; text-align: center; }
+  .tut-topo-row { display: flex; justify-content: center; align-items: center; gap: 16px; margin: 12px 0; flex-wrap: wrap; }
+  .tut-topo-box { background: var(--bg-card); border: 2px solid var(--accent); border-radius: var(--radius-sm); padding: 14px 18px; min-width: 150px; text-align: center; box-shadow: var(--shadow-sm); }
+  .tut-topo-box .name { font-weight: 700; color: var(--text); font-size: 15px; }
+  .tut-topo-box .desc { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; line-height: 1.4; }
+  .tut-topo-arrow { font-size: 22px; color: var(--accent); font-weight: 700; }
+  .tut-topo-label { font-size: 12px; color: var(--text-tertiary); margin: 4px 0; }
+
+  .tut-mockup { background: #1e1b3a; border-radius: var(--radius); overflow: hidden; margin: 24px 0; box-shadow: var(--shadow); }
+  .tut-mockup-bar { background: #2a2848; padding: 10px 14px; display: flex; align-items: center; gap: 8px; }
+  .tut-mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .tut-mockup-dot.r { background: #ff5f57; }
+  .tut-mockup-dot.y { background: #febc2e; }
+  .tut-mockup-dot.g { background: #28c840; }
+  .tut-mockup-url { background: rgba(0,0,0,0.3); color: #a0a0c0; font-size: 11px; padding: 4px 12px; border-radius: 4px; flex: 1; font-family: "SF Mono", Consolas, monospace; }
+  .tut-mockup-body { background: var(--bg-card); padding: 20px; font-size: 14px; color: var(--text); }
+  .tut-mockup-body .section-title { font-weight: 700; color: var(--accent); margin: 12px 0 8px; font-size: 15px; }
+  .tut-mockup-body .row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); gap: 8px; flex-wrap: wrap; }
+  .tut-mockup-body .row:last-child { border-bottom: none; }
+  .tut-mockup-body .label { color: var(--text-secondary); min-width: 160px; font-size: 13px; font-weight: 500; }
+  .tut-mockup-body .value { color: var(--text); font-weight: 500; font-size: 13px; }
+  .tut-mockup-body .checkbox { width: 18px; height: 18px; border: 2px solid var(--accent); border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; background: var(--accent); }
+  .tut-mockup-body .btn { background: var(--accent); color: #fff; padding: 5px 14px; border-radius: 6px; font-size: 12px; border: none; display: inline-block; font-weight: 600; }
+  .tut-mockup-body .btn-sm { padding: 3px 10px; font-size: 11px; }
+  .tut-mockup-body .status-green { color: #10b981; font-weight: 700; }
+  .tut-mockup-body .status-red { color: #ef4444; font-weight: 700; }
+  .tut-mockup-body table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  .tut-mockup-body th { background: var(--accent); color: #fff; padding: 8px 10px; text-align: left; font-weight: 600; }
+  .tut-mockup-body td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  .tut-mockup-body tr:hover td { background: var(--bg-secondary); }
+
+  .tut-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin: 16px 0; box-shadow: var(--shadow-sm); }
+  .tut-card ol, .tut-card ul { padding-left: 24px; }
+  .tut-card li { margin: 8px 0; color: var(--text-secondary); line-height: 1.6; }
+  .tut-card li strong { color: var(--text); }
+  .tut-card h3 { color: var(--accent); font-size: 18px; margin: 20px 0 10px; }
+
+  .tut-highlight { background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent), color-mix(in srgb, var(--accent-pink) 10%, transparent)); border: 2px solid var(--accent-light); border-radius: var(--radius); padding: 16px 20px; margin: 20px 0; text-align: center; font-weight: 600; color: var(--text); }
+
+  .tut-note { background: color-mix(in srgb, #f59e0b 8%, transparent); border-left: 4px solid #f59e0b; padding: 14px 18px; margin: 16px 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 14px; color: var(--text-secondary); }
+  .tut-note.warn { background: color-mix(in srgb, #ef4444 8%, transparent); border-left-color: #ef4444; }
+  .tut-note.info { background: color-mix(in srgb, var(--accent) 8%, transparent); border-left-color: var(--accent); }
+
+  .tut-table { width: 100%; border-collapse: collapse; margin: 16px 0; border-radius: var(--radius-sm); overflow: hidden; }
+  .tut-table th, .tut-table td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; font-size: 14px; }
+  .tut-table th { background: var(--accent); color: #fff; font-weight: 600; }
+  .tut-table tr:nth-child(even) { background: var(--bg-secondary); }
+
+  .tut-step { display: flex; align-items: center; gap: 12px; margin: 24px 0 12px; }
+  .tut-step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--bg-gradient); color: #fff; font-weight: 800; font-size: 16px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(124,92,255,0.3); }
+  .tut-step h2 { font-size: 22px; font-weight: 800; color: var(--text); margin: 0; }
+
+  code { background: var(--code-bg); color: var(--accent); padding: 3px 8px; border-radius: 5px; font-size: 14px; font-family: "SF Mono", "Fira Code", "Consolas", monospace; font-weight: 500; }
+  .path { background: var(--bg-secondary); color: var(--text); padding: 8px 14px; border-radius: var(--radius-sm); font-family: "SF Mono", Consolas, monospace; font-size: 13px; margin: 8px 0; display: block; border: 1px solid var(--border); }
+</style>
 </head>
 <body>
 
@@ -47,47 +104,486 @@
   </div>
 </header>
 
+<!-- Post Header -->
 <div class="container" style="padding-top:32px;">
   <div class="post-detail-header">
     <span class="category-badge">技術</span>
-    <h1>Vigor 2135 + VigorAP 1062C 設定教學</h1>
+    <h1>Vigor 2135 + VigorAP 1062C 完整設定教學</h1>
     <div class="post-meta">
       <div class="author">
         <div class="author-avatar">D</div>
         <span>Dickens</span>
       </div>
       <span>📅 2026-11-16</span>
-      <span>📖 3 分鐘閱讀</span>
-      <span>👁 256 次瀏覽</span>
+      <span>📖 8 分鐘閱讀</span>
+      <span>👁 312 次瀏覽</span>
     </div>
   </div>
 
+  <!-- Content -->
   <div class="post-detail-content">
-    <p>Vigor 2135 本身不具備無線功能，需透過 VigorAP 1062C 提供 Wi-Fi 訊號。本文記錄完整的 APM（中央 AP 管理）設定流程。</p>
 
-    <h2>網路架構</h2>
-    <p>Vigor 2135 作為路由器 + APM 主控端，VigorAP 1062C 作為吸頂式 AP 提供 Wi-Fi 6 訊號。</p>
+    <div class="tut-highlight">
+      ⚠️ Vigor 2135 本身不具備無線功能，需透過 VigorAP 1062C 提供 Wi-Fi 訊號。本教學使用 Vigor 2135 的「中央 AP 管理 (APM)」功能，統一管理 VigorAP 1062C。
+    </div>
 
-    <h2>設定步驟摘要</h2>
-    <ol>
-      <li><strong>實體連接</strong>：將 VigorAP 1062C 的 LAN/PoE 埠接至 Vigor 2135 的 LAN 口</li>
-      <li><strong>啟用 APM</strong>：Vigor 2135 → System Maintenance → Management → 勾選 Enable AP Management</li>
-      <li><strong>授權 AP</strong>：Central Management → AP → Status → 若出現 Unauthorized，點 Password 輸入帳密</li>
-      <li><strong>建立 WLAN Profile</strong>：Central Management → AP → WLAN Profile → 設定 SSID、密碼、安全性</li>
-      <li><strong>套用設定檔</strong>：Central Management → AP → Device → 勾選 Use AP Profile → Apply</li>
-    </ol>
+    <!-- Step 0: Network Topology -->
+    <div class="tut-step">
+      <div class="tut-step-num">0</div>
+      <h2>網路架構示意</h2>
+    </div>
+    <div class="tut-topology">
+      <div class="tut-topo-row">
+        <div class="tut-topo-box">
+          <div class="name">🌐 網際網路</div>
+          <div class="desc">Internet</div>
+        </div>
+      </div>
+      <div class="tut-topo-arrow">⬇</div>
+      <div class="tut-topo-row">
+        <div class="tut-topo-box" style="border-color:#ef4444;">
+          <div class="name">Vigor 2135</div>
+          <div class="desc">路由器（主控端 APM）<br>有線網路 · 無無線功能<br>192.168.1.1</div>
+        </div>
+      </div>
+      <div class="tut-topo-arrow">⬇ LAN 口 / Switch（網路線）</div>
+      <div class="tut-topo-row">
+        <div class="tut-topo-box" style="border-color:#10b981;">
+          <div class="name">VigorAP 1062C</div>
+          <div class="desc">吸頂式 AP · 提供 Wi-Fi 6<br>AX6000 雙頻 · 2.5GbE + PoE<br>192.168.1.2 (DHCP)</div>
+        </div>
+      </div>
+      <div class="tut-topo-arrow">📶 Wi-Fi 6 無線訊號</div>
+      <div class="tut-topo-row">
+        <div class="tut-topo-box">
+          <div class="name">📱 💻 🖨️</div>
+          <div class="desc">無線終端裝置<br>（手機、筆電、平板等）</div>
+        </div>
+      </div>
+    </div>
 
-    <h2>後續加裝第二台 AP</h2>
-    <p>APM 已啟用後，加裝第二台 1062C 更簡單：授權 + 套用相同設定檔即可，兩台 AP 會廣播相同 SSID，裝置自動漫遊。</p>
+    <!-- Step 1 -->
+    <div class="tut-step">
+      <div class="tut-step-num">1</div>
+      <h2>實體連接</h2>
+    </div>
+    <div class="tut-card">
+      <ol>
+        <li>將 <strong>VigorAP 1062C</strong> 的 LAN / PoE 埠用網路線接至 <strong>Vigor 2135</strong> 的 LAN 口或其下層 Switch</li>
+        <li>若使用 PoE 供電：確保 Switch 或 Vigor 2135 提供 PoE+ (802.3at) 電源</li>
+        <li>若使用變壓器供電：另接 DC 電源變壓器</li>
+        <li>確認 VigorAP 1062C 能從 Vigor 2135 取得 IP 位址（同一區域網路）</li>
+      </ol>
+    </div>
+    <div class="tut-note info">
+      💡 <strong>LED 確認</strong>：VigorAP 1062C 正常運作時 LED 為<strong>綠燈慢閃</strong>；若為紅燈閃爍代表系統錯誤。
+    </div>
 
-    <h2>注意事項</h2>
-    <ul>
-      <li>多台 AP 記得做頻道規劃（2.4GHz 用 1/6/11）</li>
-      <li>建議在 Vigor 2135 的 LAN → Bind IP to MAC 固定每台 AP 的 IP</li>
-      <li>Vigor 2135 最多可管理 50 台 VigorAP</li>
-    </ul>
+    <div class="tut-mockup">
+      <div class="tut-mockup-bar">
+        <span class="tut-mockup-dot r"></span><span class="tut-mockup-dot y"></span><span class="tut-mockup-dot g"></span>
+        <span class="tut-mockup-url">硬體連接示意</span>
+      </div>
+      <div class="tut-mockup-body">
+        <div class="section-title">VigorAP 1062C 背面連接埠</div>
+        <div class="row">
+          <span class="label">LAN / PoE 埠 (2.5GbE)</span>
+          <span class="value">→ 網路線 → Vigor 2135 LAN 口（或 PoE Switch）</span>
+        </div>
+        <div class="row">
+          <span class="label">DC 電源孔</span>
+          <span class="value">→ 變壓器（若不使用 PoE 供電）</span>
+        </div>
+        <div class="row">
+          <span class="label">Reset 按鈕</span>
+          <span class="value">戳 5 秒恢復原廠設定</span>
+        </div>
+      </div>
+    </div>
 
-    <blockquote>完整圖文教學請參考 <a href="https://pkjoe88.github.io/vigorap-1062c-tutorial/" target="_blank">VigorAP 1062C 教學網站</a></blockquote>
+    <!-- Step 2 -->
+    <div class="tut-step">
+      <div class="tut-step-num">2</div>
+      <h2>確認 Vigor 2135 的 APM 功能已開啟</h2>
+    </div>
+    <div class="tut-card">
+      <ol>
+        <li>開啟瀏覽器，登入 <strong>Vigor 2135</strong> 網頁管理介面（預設 <code>http://192.168.1.1</code>）</li>
+        <li>前往路徑：<span class="path">System Maintenance → Management</span></li>
+        <li>確認已勾選 <strong>Enable AP Management</strong>（啟用 AP 管理）</li>
+        <li>點選 <strong>OK / Apply</strong> 儲存</li>
+      </ol>
+    </div>
+
+    <div class="tut-mockup">
+      <div class="tut-mockup-bar">
+        <span class="tut-mockup-dot r"></span><span class="tut-mockup-dot y"></span><span class="tut-mockup-dot g"></span>
+        <span class="tut-mockup-url">http://192.168.1.1 → System Maintenance → Management</span>
+      </div>
+      <div class="tut-mockup-body">
+        <div class="section-title">系統維護 → 管理</div>
+        <div class="row">
+          <span class="label">Enable AP Management</span>
+          <span class="checkbox">✓</span>
+          <span class="value" style="color:#10b981;">已啟用（勾選）</span>
+        </div>
+        <div class="row">
+          <span class="label">Enable SNMP</span>
+          <span style="width:18px;height:18px;border:2px solid var(--border);border-radius:4px;display:inline-block;"></span>
+          <span class="value" style="color:var(--text-tertiary);">未勾選（選用）</span>
+        </div>
+        <div class="row">
+          <span class="label"></span>
+          <span class="btn">OK / Apply</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="tut-step">
+      <div class="tut-step-num">3</div>
+      <h2>授權 VigorAP 1062C</h2>
+    </div>
+    <div class="tut-card">
+      <ol>
+        <li>在 Vigor 2135 介面前往：<span class="path">Central Management → AP → Status</span></li>
+        <li>Vigor 2135 會自動搜尋區網內的 VigorAP</li>
+        <li>觀察 AP 狀態：
+          <ul>
+            <li><strong>綠色（正常/已授權）</strong>：路由器已成功連線並取得管理權限 ✅</li>
+            <li><strong>紅色 + [Warn: Unauthorized]</strong>：未授權，需手動授權 ⚠️</li>
+          </ul>
+        </li>
+        <li>若出現未授權：點選該 AP 清單中的 <strong>Password</strong> 按鈕，輸入 AP 目前的管理者帳密（預設 <code>admin</code> / <code>admin</code>）完成授權</li>
+        <li>狀態轉為綠色即代表管理權限取得成功</li>
+      </ol>
+    </div>
+    <div class="tut-note warn">
+      ⚠️ <strong>授權失敗排錯</strong>：若 AP 沒出現在清單中，請確認：(1) AP 是否已取得 IP、(2) 是否被 Mesh Slave 模式佔用、(3) 韌體版本是否過舊。
+    </div>
+
+    <div class="tut-mockup">
+      <div class="tut-mockup-bar">
+        <span class="tut-mockup-dot r"></span><span class="tut-mockup-dot y"></span><span class="tut-mockup-dot g"></span>
+        <span class="tut-mockup-url">http://192.168.1.1 → Central Management → AP → Status</span>
+      </div>
+      <div class="tut-mockup-body">
+        <div class="section-title">AP 狀態清單</div>
+        <table>
+          <tr>
+            <th>AP 名稱</th>
+            <th>MAC 位址</th>
+            <th>IP 位址</th>
+            <th>狀態</th>
+            <th>操作</th>
+          </tr>
+          <tr>
+            <td>VigorAP 1062C</td>
+            <td>00:11:22:33:44:55</td>
+            <td>192.168.1.2</td>
+            <td class="status-green">● 已授權 (Authorized)</td>
+            <td><span class="btn btn-sm">Password</span></td>
+          </tr>
+        </table>
+        <div style="margin-top:8px; font-size:12px; color:var(--text-tertiary);">
+          綠色 = 已授權管理 ✅　|　紅色 [Warn: Unauthorized] = 需點 Password 輸入帳密授權
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="tut-step">
+      <div class="tut-step-num">4</div>
+      <h2>建立 WLAN 設定檔</h2>
+    </div>
+    <div class="tut-card">
+      <ol>
+        <li>前往：<span class="path">Central Management → AP → WLAN Profile</span></li>
+        <li>點選空白設定檔（如 Profile 1）→ <strong>Edit</strong></li>
+        <li>填寫基本參數：</li>
+      </ol>
+      <table class="tut-table">
+        <tr><th>欄位</th><th>說明</th><th>建議值</th></tr>
+        <tr><td>Profile Name</td><td>設定檔名稱</td><td>Office_Wi-Fi</td></tr>
+        <tr><td>AP Login Username</td><td>AP 管理帳號</td><td>admin</td></tr>
+        <tr><td>AP Login Password</td><td>AP 管理密碼</td><td>admin（或自訂）</td></tr>
+        <tr><td>2.4G / 5G 無線電</td><td>傳輸功率、頻道、頻寬</td><td>依環境調整</td></tr>
+        <tr><td>漫遊協定</td><td>進階漫遊優化</td><td>啟用 802.11k / 802.11r</td></tr>
+      </table>
+      <ol start="4">
+        <li>點選 <strong>Next</strong> → 設定 SSID 詳情：</li>
+      </ol>
+      <table class="tut-table">
+        <tr><th>欄位</th><th>說明</th><th>建議值</th></tr>
+        <tr><td>SSID</td><td>無線網路名稱</td><td>自訂名稱</td></tr>
+        <tr><td>Security</td><td>安全性</td><td>WPA3/WPA2-Personal 或 WPA2-PSK (AES)</td></tr>
+        <tr><td>Password</td><td>Wi-Fi 密碼</td><td>至少 8 字元</td></tr>
+        <tr><td>VLAN</td><td>對應 VLAN（選填）</td><td>來賓網路隔離等</td></tr>
+      </table>
+      <ol start="5">
+        <li>儲存設定檔</li>
+      </ol>
+    </div>
+
+    <div class="tut-mockup">
+      <div class="tut-mockup-bar">
+        <span class="tut-mockup-dot r"></span><span class="tut-mockup-dot y"></span><span class="tut-mockup-dot g"></span>
+        <span class="tut-mockup-url">http://192.168.1.1 → Central Management → AP → WLAN Profile → Edit</span>
+      </div>
+      <div class="tut-mockup-body">
+        <div class="section-title">WLAN 設定檔編輯</div>
+        <div class="row">
+          <span class="label">Profile Name</span>
+          <span class="value">Office_Wi-Fi</span>
+        </div>
+        <div class="row">
+          <span class="label">AP Login Username</span>
+          <span class="value">admin</span>
+        </div>
+        <div class="row">
+          <span class="label">AP Login Password</span>
+          <span class="value">••••••••</span>
+        </div>
+        <div class="row">
+          <span class="label">2.4G Radio</span>
+          <span class="checkbox">✓</span>
+          <span class="value">啟用 · 頻道 Auto · 頻寬 20/40 MHz</span>
+        </div>
+        <div class="row">
+          <span class="label">5G Radio</span>
+          <span class="checkbox">✓</span>
+          <span class="value">啟用 · 頻道 Auto · 頻寬 80 MHz</span>
+        </div>
+        <div class="row">
+          <span class="label">SSID</span>
+          <span class="value">MyOfficeWiFi</span>
+        </div>
+        <div class="row">
+          <span class="label">Security</span>
+          <span class="value">WPA2/WPA3-Personal (AES)</span>
+        </div>
+        <div class="row">
+          <span class="label">Wi-Fi Password</span>
+          <span class="value">••••••••••</span>
+        </div>
+        <div class="row">
+          <span class="label"></span>
+          <span class="btn">Next → 儲存</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="tut-step">
+      <div class="tut-step-num">5</div>
+      <h2>套用設定檔到 VigorAP 1062C</h2>
+    </div>
+    <div class="tut-card">
+      <ol>
+        <li>前往：<span class="path">Central Management → AP → Device</span></li>
+        <li>找到 <strong>VigorAP 1062C</strong> 裝置</li>
+        <li>勾選 <strong>Use AP Profile</strong>，下拉選擇剛建立的設定檔（如 <code>Office_Wi-Fi</code>）</li>
+        <li>點選 <strong>Save / Apply</strong></li>
+        <li>Vigor 2135 會自動將無線設定派發並寫入 VigorAP 1062C</li>
+      </ol>
+    </div>
+
+    <div class="tut-mockup">
+      <div class="tut-mockup-bar">
+        <span class="tut-mockup-dot r"></span><span class="tut-mockup-dot y"></span><span class="tut-mockup-dot g"></span>
+        <span class="tut-mockup-url">http://192.168.1.1 → Central Management → AP → Device</span>
+      </div>
+      <div class="tut-mockup-body">
+        <div class="section-title">AP 裝置設定</div>
+        <div class="row">
+          <span class="label">裝置名稱</span>
+          <span class="value">VigorAP 1062C</span>
+        </div>
+        <div class="row">
+          <span class="label">Use AP Profile</span>
+          <span class="checkbox">✓</span>
+          <span class="value" style="color:#10b981;">已勾選</span>
+        </div>
+        <div class="row">
+          <span class="label">選擇設定檔</span>
+          <span class="value">▼ Office_Wi-Fi</span>
+        </div>
+        <div class="row">
+          <span class="label"></span>
+          <span class="btn">Save / Apply（派發設定）</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="tut-step">
+      <div class="tut-step-num">6</div>
+      <h2>後續管理與維護</h2>
+    </div>
+    <div class="tut-card">
+      <h3>集中維護功能</h3>
+      <p>設定完成後，日後所有維護操作皆可在 Vigor 2135 的 <strong>Central Management → AP</strong> 直接執行，<strong>不需額外登入 AP 介面</strong>：</p>
+      <ul>
+        <li>🔄 重新開機 AP</li>
+        <li>💾 備份 / 還原設定</li>
+        <li>⬆️ 升級韌體</li>
+        <li>📊 查看 AP 狀態與連線用戶</li>
+      </ul>
+    </div>
+    <div class="tut-card">
+      <h3>IP 固定建議</h3>
+      <p>建議在 Vigor 2135 的 <span class="path">LAN → Bind IP to MAC</span> 綁定 VigorAP 1062C 的 MAC 與 IP，方便日後管理。</p>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="tut-step">
+      <div class="tut-step-num">7</div>
+      <h2>後續加裝第二台 VigorAP 1062C</h2>
+    </div>
+    <div class="tut-highlight">
+      💡 Vigor 2135 已啟用 APM，加裝第二台 1062C 流程更簡單 — APM 設定已就緒，直接授權 + 套用既有設定檔即可。
+    </div>
+
+    <div class="tut-card">
+      <h3>步驟 1：實體連接</h3>
+      <ol>
+        <li>將第二台 VigorAP 1062C 的 LAN/PoE 埠接至 Vigor 2135 的 LAN 口或同一個 Switch</li>
+        <li>確認 PoE 供電或接上變壓器</li>
+        <li>等待 LED 轉為綠燈慢閃（正常運作）</li>
+      </ol>
+    </div>
+
+    <div class="tut-card">
+      <h3>步驟 2：授權新 AP</h3>
+      <ol>
+        <li>登入 Vigor 2135 → <span class="path">Central Management → AP → Status</span></li>
+        <li>新 AP 會自動出現在清單中（IP 由 DHCP 自動分配，如 <code>192.168.1.3</code>）</li>
+        <li>若出現 <strong>[Warn: Unauthorized]</strong> → 點 <strong>Password</strong> → 輸入 <code>admin</code> / <code>admin</code> 完成授權</li>
+        <li>狀態轉綠色 ✅</li>
+      </ol>
+    </div>
+
+    <div class="tut-mockup">
+      <div class="tut-mockup-bar">
+        <span class="tut-mockup-dot r"></span><span class="tut-mockup-dot y"></span><span class="tut-mockup-dot g"></span>
+        <span class="tut-mockup-url">http://192.168.1.1 → Central Management → AP → Status</span>
+      </div>
+      <div class="tut-mockup-body">
+        <div class="section-title">AP 狀態清單（兩台 AP）</div>
+        <table>
+          <tr>
+            <th>AP 名稱</th>
+            <th>MAC 位址</th>
+            <th>IP 位址</th>
+            <th>狀態</th>
+          </tr>
+          <tr>
+            <td>VigorAP 1062C #1</td>
+            <td>00:11:22:33:44:55</td>
+            <td>192.168.1.2</td>
+            <td class="status-green">● 已授權</td>
+          </tr>
+          <tr>
+            <td>VigorAP 1062C #2</td>
+            <td>00:11:22:33:44:66</td>
+            <td>192.168.1.3</td>
+            <td class="status-green">● 已授權</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="tut-card">
+      <h3>步驟 3：套用設定檔</h3>
+      <ol>
+        <li>前往 <span class="path">Central Management → AP → Device</span></li>
+        <li>找到第二台 VigorAP 1062C</li>
+        <li>勾選 <strong>Use AP Profile</strong> → 下拉選擇與第一台<strong>相同的設定檔</strong>（如 <code>Office_Wi-Fi</code>）</li>
+        <li>點 <strong>Save / Apply</strong></li>
+      </ol>
+    </div>
+    <div class="tut-note info">
+      ✅ <strong>完成！</strong> 兩台 AP 都會廣播相同的 SSID，裝置可自動在兩台之間漫遊。
+    </div>
+
+    <div class="tut-card">
+      <h3>多台 AP 注意事項</h3>
+      <table class="tut-table">
+        <tr><th>項目</th><th>說明</th></tr>
+        <tr><td>頻道規劃</td><td>2.4GHz 建議用 1、6、11 不重疊頻道；5GHz 頻道較多可依環境選擇</td></tr>
+        <tr><td>傳輸功率</td><td>AP 密集部署時可降低功率避免訊號重疊</td></tr>
+        <tr><td>Mesh 模式</td><td>AP 之間無法用網路線連接時，改用 Role Setup → Slave Mesh 無線串聯</td></tr>
+        <tr><td>IP 固定</td><td>在 Vigor 2135 的 LAN → Bind IP to MAC 為每台 AP 綁定固定 IP</td></tr>
+        <tr><td>VLAN 隔離</td><td>可在 WLAN Profile 中對應不同 VLAN（如來賓網路）</td></tr>
+        <tr><td>管理上限</td><td>Vigor 2135 最多可管理 50 台 VigorAP</td></tr>
+      </table>
+    </div>
+
+    <div class="tut-card">
+      <h3>最終架構</h3>
+      <div class="tut-topology">
+        <div class="tut-topo-row">
+          <div class="tut-topo-box">
+            <div class="name">Vigor 2135</div>
+            <div class="desc">路由器 + APM 主控<br>最多管理 50 台 AP</div>
+          </div>
+        </div>
+        <div class="tut-topo-arrow">⬇ LAN / Switch</div>
+        <div class="tut-topo-row" style="gap:20px;">
+          <div class="tut-topo-box" style="border-color:#10b981;">
+            <div class="name">VigorAP 1062C #1</div>
+            <div class="desc">192.168.1.2<br>Wi-Fi 6 訊號</div>
+          </div>
+          <div class="tut-topo-box" style="border-color:#10b981;">
+            <div class="name">VigorAP 1062C #2</div>
+            <div class="desc">192.168.1.3<br>Wi-Fi 6 訊號</div>
+          </div>
+          <div class="tut-topo-box" style="border-color:var(--text-tertiary);">
+            <div class="name">...更多 AP</div>
+            <div class="desc">最多 50 台</div>
+          </div>
+        </div>
+        <div class="tut-topo-arrow">📶 相同 SSID，自動漫遊</div>
+        <div class="tut-topo-row">
+          <div class="tut-topo-box">
+            <div class="name">📱 💻 🖨️</div>
+            <div class="desc">無線終端裝置</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q&A -->
+    <div class="tut-step">
+      <div class="tut-step-num">?</div>
+      <h2>常見問題 Q&A</h2>
+    </div>
+    <div class="tut-card">
+      <table class="tut-table">
+        <tr><th>問題</th><th>可能原因與解決</th></tr>
+        <tr>
+          <td>AP 沒出現在 Status 清單</td>
+          <td>確認 AP 已取得 IP；確認未被 Mesh Slave 模式佔用；更新韌體</td>
+        </tr>
+        <tr>
+          <td>授權失敗 [Unauthorized]</td>
+          <td>AP 管理密碼已被修改，點 Password 按鈕重新輸入正確帳密</td>
+        </tr>
+        <tr>
+          <td>設定檔套用後無 Wi-Fi 訊號</td>
+          <td>確認設定檔中 2.4G/5G 無線電已啟用；確認 SSID 已 Enable</td>
+        </tr>
+        <tr>
+          <td>韌體更新失敗</td>
+          <td>更新過程中勿斷電；確認下載的韌體版本對應 1062C 型號</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="tut-note info">
+      📖 <strong>官方資源</strong>：更多詳細設定請參考 DrayTek 官方網站 <a href="https://www.draytek.com/products/vigorap-1062c" target="_blank">VigorAP 1062C 產品頁</a>（可下載 Quick Start Guide 與 User's Guide PDF）。
+    </div>
+
   </div>
 
   <div class="post-detail-tags">
