@@ -12,82 +12,132 @@
 </head>
 <body>
 
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="container">
+    <div class="top-bar-left">
+      <span>📅 <span id="currentDate"></span></span>
+    </div>
+    <div class="top-bar-right">
+      <a href="https://github.com/pkjoe88" target="_blank" class="social-icon" title="GitHub">GH</a>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
 <header class="site-header">
   <div class="container">
-    <nav class="nav">
-      <a href="../index.html" class="site-title">Dickens</a>
-      <ul class="nav-links">
-        <li><a href="../index.html">首頁</a></li>
-        <li><a href="../posts.html">文章</a></li>
-        <li><a href="../about.html">關於</a></li>
-        <li><button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切換主題">🌙</button></li>
-      </ul>
-    </nav>
+    <div class="header-main">
+      <nav class="nav">
+        <a href="../index.html" class="site-logo">
+          <div class="logo-icon">D</div>
+          <span class="site-title">Dickens</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="../index.html">首頁</a></li>
+          <li><a href="../posts.html">文章</a></li>
+          <li><a href="../about.html">關於</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="search-btn" onclick="window.location='../posts.html'" title="搜尋">🔍</button>
+          <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切換主題">🌙</button>
+        </div>
+      </nav>
+    </div>
   </div>
 </header>
 
-<main>
-  <div class="container">
-    <article>
-      <header class="post-header">
-        <h1>GitHub Pages 自訂域名設定心得</h1>
-        <div class="post-meta">
-          <span>📅 2026-11-16</span>
-          <span class="post-tag">技術</span>
-          <span class="post-tag">GitHub</span>
-          <span>📖 約 3 分鐘閱讀</span>
-        </div>
-      </header>
-      <div class="post-content">
-        <p>記錄使用 dickens99.pp.ua 自訂域名的設定過程，包括 DNS 設定、HTTPS 憑證簽發等踩坑經驗。</p>
-
-        <h2>設定步驟</h2>
-        <ol>
-          <li>在 GitHub Repository 的 Settings → Pages 設定 Custom domain</li>
-          <li>在 repo 根目錄建立 <code>CNAME</code> 檔案，內容為域名</li>
-          <li>在 DNS 代管服務設定 A 記錄指向 GitHub IP（185.199.108-111.153）</li>
-          <li>等待 DNS 傳播</li>
-          <li>GitHub 自動簽發 HTTPS 憑證</li>
-        </ol>
-
-        <h2>踩坑紀錄</h2>
-        <h3>1. Proxy 狀態</h3>
-        <p>如果你用 Cloudflare，初始設定時 Proxy 請設為 DNS only（灰色雲朵），等 GitHub 驗證完成後再切換為 Proxied。</p>
-
-        <h3>2. HTTPS 憑證簽發時間</h3>
-        <p>GitHub Pages 使用 Let's Encrypt，DNS 驗證完成後通常需要數分鐘到數小時才能簽發憑證。不要急。</p>
-
-        <h3>3. .pp.ua 域名的特殊性</h3>
-        <p>.pp.ua 是烏克蘭免費域名，DNS 傳播有時比一般域名慢一些，要有耐心。</p>
-
-        <h2>最終結果</h2>
-        <p>網站現在可以透過 <a href="https://dickens99.pp.ua" target="_blank">https://dickens99.pp.ua</a> 存取，HTTPS 憑證由 GitHub Pages 自動管理。</p>
+<div class="container" style="padding-top:32px;">
+  <div class="post-detail-header">
+    <span class="category-badge">技術</span>
+    <h1>GitHub Pages 自訂域名設定心得</h1>
+    <div class="post-meta">
+      <div class="author">
+        <div class="author-avatar">D</div>
+        <span>Dickens</span>
       </div>
-    </article>
-
-    <div class="post-nav">
-      <a href="vigorap-1062c-setup.html">
-        <div class="nav-label">← 上一篇</div>
-        <div class="nav-title">Vigor 2135 + VigorAP 1062C 設定教學</div>
-      </a>
-      <div></div>
+      <span>📅 2026-11-16</span>
+      <span>📖 3 分鐘閱讀</span>
+      <span>👁 95 次瀏覽</span>
     </div>
   </div>
-</main>
 
+  <div class="post-detail-content">
+    <p>記錄使用 dickens99.pp.ua 自訂域名的設定過程，包括 DNS 設定、HTTPS 憑證簽發等踩坑經驗。</p>
+
+    <h2>設定步驟</h2>
+    <ol>
+      <li>在 GitHub Repository 的 Settings → Pages 設定 Custom domain</li>
+      <li>在 repo 根目錄建立 <code>CNAME</code> 檔案，內容為域名</li>
+      <li>在 DNS 代管服務設定 A 記錄指向 GitHub IP（185.199.108-111.153）</li>
+      <li>等待 DNS 傳播</li>
+      <li>GitHub 自動簽發 HTTPS 憑證</li>
+    </ol>
+
+    <h2>踩坑紀錄</h2>
+    <h3>1. Proxy 狀態</h3>
+    <p>如果你用 Cloudflare，初始設定時 Proxy 請設為 DNS only（灰色雲朵），等 GitHub 驗證完成後再切換為 Proxied。</p>
+
+    <h3>2. HTTPS 憑證簽發時間</h3>
+    <p>GitHub Pages 使用 Let's Encrypt，DNS 驗證完成後通常需要數分鐘到數小時才能簽發憑證。不要急。</p>
+
+    <h3>3. .pp.ua 域名的特殊性</h3>
+    <p>.pp.ua 是烏克蘭免費域名，DNS 傳播有時比一般域名慢一些，要有耐心。</p>
+
+    <h2>最終結果</h2>
+    <p>網站現在可以透過 <a href="https://dickens99.pp.ua" target="_blank">https://dickens99.pp.ua</a> 存取，HTTPS 憑證由 GitHub Pages 自動管理。</p>
+  </div>
+
+  <div class="post-detail-tags">
+    <a href="../posts.html?tag=技術" class="post-detail-tag">技術</a>
+    <a href="../posts.html?tag=GitHub" class="post-detail-tag">GitHub</a>
+  </div>
+
+  <div class="post-nav">
+    <a href="vigorap-1062c-setup.html">
+      <div class="nav-label">← 上一篇</div>
+      <div class="nav-title">Vigor 2135 + VigorAP 1062C 設定教學</div>
+    </a>
+    <div></div>
+  </div>
+</div>
+
+<!-- Footer -->
 <footer class="site-footer">
   <div class="container">
-    <div class="footer-links">
-      <a href="https://github.com/pkjoe88" target="_blank">GitHub</a>
-      <a href="../posts.html">文章</a>
-      <a href="../about.html">關於</a>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Dickens 的生活雜記</h4>
+        <p>記錄生活中的點點滴滴</p>
+      </div>
+      <div class="footer-col">
+        <h4>快速連結</h4>
+        <ul>
+          <li><a href="../index.html">首頁</a></li>
+          <li><a href="../posts.html">所有文章</a></li>
+          <li><a href="../about.html">關於</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>主題分類</h4>
+        <ul>
+          <li><a href="../posts.html?tag=技術">技術</a></li>
+          <li><a href="../posts.html?tag=生活">生活</a></li>
+          <li><a href="../posts.html?tag=網路">網路</a></li>
+        </ul>
+      </div>
     </div>
-    <p>&copy; 2026 Dickens &middot; 用 GitHub Pages 建立</p>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Dickens &middot; 用 GitHub Pages 建立</p>
+    </div>
   </div>
 </footer>
 
 <button class="back-to-top" id="backToTop" aria-label="回到頂部">↑</button>
 
 <script src="../js/main.js"></script>
+<script>
+document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-TW', {year:'numeric', month:'long', day:'numeric'});
+</script>
 </body>
 </html>

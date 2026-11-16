@@ -12,87 +12,137 @@
 </head>
 <body>
 
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="container">
+    <div class="top-bar-left">
+      <span>📅 <span id="currentDate"></span></span>
+    </div>
+    <div class="top-bar-right">
+      <a href="https://github.com/pkjoe88" target="_blank" class="social-icon" title="GitHub">GH</a>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
 <header class="site-header">
   <div class="container">
-    <nav class="nav">
-      <a href="../index.html" class="site-title">Dickens</a>
-      <ul class="nav-links">
-        <li><a href="../index.html">首頁</a></li>
-        <li><a href="../posts.html">文章</a></li>
-        <li><a href="../about.html">關於</a></li>
-        <li><button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切換主題">🌙</button></li>
-      </ul>
-    </nav>
+    <div class="header-main">
+      <nav class="nav">
+        <a href="../index.html" class="site-logo">
+          <div class="logo-icon">D</div>
+          <span class="site-title">Dickens</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="../index.html">首頁</a></li>
+          <li><a href="../posts.html">文章</a></li>
+          <li><a href="../about.html">關於</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="search-btn" onclick="window.location='../posts.html'" title="搜尋">🔍</button>
+          <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切換主題">🌙</button>
+        </div>
+      </nav>
+    </div>
   </div>
 </header>
 
-<main>
-  <div class="container">
-    <article>
-      <header class="post-header">
-        <h1>Vigor 2135 + VigorAP 1062C 設定教學</h1>
-        <div class="post-meta">
-          <span>📅 2026-11-16</span>
-          <span class="post-tag">技術</span>
-          <span class="post-tag">網路</span>
-          <span>📖 約 3 分鐘閱讀</span>
-        </div>
-      </header>
-      <div class="post-content">
-        <p>Vigor 2135 本身不具備無線功能，需透過 VigorAP 1062C 提供 Wi-Fi 訊號。本文記錄完整的 APM（中央 AP 管理）設定流程。</p>
-
-        <h2>網路架構</h2>
-        <p>Vigor 2135 作為路由器 + APM 主控端，VigorAP 1062C 作為吸頂式 AP 提供 Wi-Fi 6 訊號。</p>
-
-        <h2>設定步驟摘要</h2>
-        <ol>
-          <li><strong>實體連接</strong>：將 VigorAP 1062C 的 LAN/PoE 埠接至 Vigor 2135 的 LAN 口</li>
-          <li><strong>啟用 APM</strong>：Vigor 2135 → System Maintenance → Management → 勾選 Enable AP Management</li>
-          <li><strong>授權 AP</strong>：Central Management → AP → Status → 若出現 Unauthorized，點 Password 輸入帳密</li>
-          <li><strong>建立 WLAN Profile</strong>：Central Management → AP → WLAN Profile → 設定 SSID、密碼、安全性</li>
-          <li><strong>套用設定檔</strong>：Central Management → AP → Device → 勾選 Use AP Profile → Apply</li>
-        </ol>
-
-        <h2>後續加裝第二台 AP</h2>
-        <p>APM 已啟用後，加裝第二台 1062C 更簡單：授權 + 套用相同設定檔即可，兩台 AP 會廣播相同 SSID，裝置自動漫遊。</p>
-
-        <h2>注意事項</h2>
-        <ul>
-          <li>多台 AP 記得做頻道規劃（2.4GHz 用 1/6/11）</li>
-          <li>建議在 Vigor 2135 的 LAN → Bind IP to MAC 固定每台 AP 的 IP</li>
-          <li>Vigor 2135 最多可管理 50 台 VigorAP</li>
-        </ul>
-
-        <blockquote>完整圖文教學請參考 <a href="https://pkjoe88.github.io/vigorap-1062c-tutorial/" target="_blank">VigorAP 1062C 教學網站</a></blockquote>
+<div class="container" style="padding-top:32px;">
+  <div class="post-detail-header">
+    <span class="category-badge">技術</span>
+    <h1>Vigor 2135 + VigorAP 1062C 設定教學</h1>
+    <div class="post-meta">
+      <div class="author">
+        <div class="author-avatar">D</div>
+        <span>Dickens</span>
       </div>
-    </article>
-
-    <div class="post-nav">
-      <a href="hello-world.html">
-        <div class="nav-label">← 上一篇</div>
-        <div class="nav-title">Hello, World! 我的博客開張了</div>
-      </a>
-      <a href="github-pages-custom-domain.html" class="next">
-        <div class="nav-label">下一篇 →</div>
-        <div class="nav-title">GitHub Pages 自訂域名設定心得</div>
-      </a>
+      <span>📅 2026-11-16</span>
+      <span>📖 3 分鐘閱讀</span>
+      <span>👁 256 次瀏覽</span>
     </div>
   </div>
-</main>
 
+  <div class="post-detail-content">
+    <p>Vigor 2135 本身不具備無線功能，需透過 VigorAP 1062C 提供 Wi-Fi 訊號。本文記錄完整的 APM（中央 AP 管理）設定流程。</p>
+
+    <h2>網路架構</h2>
+    <p>Vigor 2135 作為路由器 + APM 主控端，VigorAP 1062C 作為吸頂式 AP 提供 Wi-Fi 6 訊號。</p>
+
+    <h2>設定步驟摘要</h2>
+    <ol>
+      <li><strong>實體連接</strong>：將 VigorAP 1062C 的 LAN/PoE 埠接至 Vigor 2135 的 LAN 口</li>
+      <li><strong>啟用 APM</strong>：Vigor 2135 → System Maintenance → Management → 勾選 Enable AP Management</li>
+      <li><strong>授權 AP</strong>：Central Management → AP → Status → 若出現 Unauthorized，點 Password 輸入帳密</li>
+      <li><strong>建立 WLAN Profile</strong>：Central Management → AP → WLAN Profile → 設定 SSID、密碼、安全性</li>
+      <li><strong>套用設定檔</strong>：Central Management → AP → Device → 勾選 Use AP Profile → Apply</li>
+    </ol>
+
+    <h2>後續加裝第二台 AP</h2>
+    <p>APM 已啟用後，加裝第二台 1062C 更簡單：授權 + 套用相同設定檔即可，兩台 AP 會廣播相同 SSID，裝置自動漫遊。</p>
+
+    <h2>注意事項</h2>
+    <ul>
+      <li>多台 AP 記得做頻道規劃（2.4GHz 用 1/6/11）</li>
+      <li>建議在 Vigor 2135 的 LAN → Bind IP to MAC 固定每台 AP 的 IP</li>
+      <li>Vigor 2135 最多可管理 50 台 VigorAP</li>
+    </ul>
+
+    <blockquote>完整圖文教學請參考 <a href="https://pkjoe88.github.io/vigorap-1062c-tutorial/" target="_blank">VigorAP 1062C 教學網站</a></blockquote>
+  </div>
+
+  <div class="post-detail-tags">
+    <a href="../posts.html?tag=技術" class="post-detail-tag">技術</a>
+    <a href="../posts.html?tag=網路" class="post-detail-tag">網路</a>
+  </div>
+
+  <div class="post-nav">
+    <a href="hello-world.html">
+      <div class="nav-label">← 上一篇</div>
+      <div class="nav-title">Hello, World! 我的博客開張了</div>
+    </a>
+    <a href="github-pages-custom-domain.html" class="next">
+      <div class="nav-label">下一篇 →</div>
+      <div class="nav-title">GitHub Pages 自訂域名設定心得</div>
+    </a>
+  </div>
+</div>
+
+<!-- Footer -->
 <footer class="site-footer">
   <div class="container">
-    <div class="footer-links">
-      <a href="https://github.com/pkjoe88" target="_blank">GitHub</a>
-      <a href="../posts.html">文章</a>
-      <a href="../about.html">關於</a>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Dickens 的生活雜記</h4>
+        <p>記錄生活中的點點滴滴</p>
+      </div>
+      <div class="footer-col">
+        <h4>快速連結</h4>
+        <ul>
+          <li><a href="../index.html">首頁</a></li>
+          <li><a href="../posts.html">所有文章</a></li>
+          <li><a href="../about.html">關於</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>主題分類</h4>
+        <ul>
+          <li><a href="../posts.html?tag=技術">技術</a></li>
+          <li><a href="../posts.html?tag=生活">生活</a></li>
+          <li><a href="../posts.html?tag=網路">網路</a></li>
+        </ul>
+      </div>
     </div>
-    <p>&copy; 2026 Dickens &middot; 用 GitHub Pages 建立</p>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Dickens &middot; 用 GitHub Pages 建立</p>
+    </div>
   </div>
 </footer>
 
 <button class="back-to-top" id="backToTop" aria-label="回到頂部">↑</button>
 
 <script src="../js/main.js"></script>
+<script>
+document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-TW', {year:'numeric', month:'long', day:'numeric'});
+</script>
 </body>
 </html>

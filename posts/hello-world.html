@@ -12,80 +12,131 @@
 </head>
 <body>
 
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="container">
+    <div class="top-bar-left">
+      <span>📅 <span id="currentDate"></span></span>
+    </div>
+    <div class="top-bar-right">
+      <a href="https://github.com/pkjoe88" target="_blank" class="social-icon" title="GitHub">GH</a>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
 <header class="site-header">
   <div class="container">
-    <nav class="nav">
-      <a href="../index.html" class="site-title">Dickens</a>
-      <ul class="nav-links">
-        <li><a href="../index.html">首頁</a></li>
-        <li><a href="../posts.html">文章</a></li>
-        <li><a href="../about.html">關於</a></li>
-        <li><button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切換主題">🌙</button></li>
-      </ul>
-    </nav>
+    <div class="header-main">
+      <nav class="nav">
+        <a href="../index.html" class="site-logo">
+          <div class="logo-icon">D</div>
+          <span class="site-title">Dickens</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="../index.html">首頁</a></li>
+          <li><a href="../posts.html">文章</a></li>
+          <li><a href="../about.html">關於</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="search-btn" onclick="window.location='../posts.html'" title="搜尋">🔍</button>
+          <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切換主題">🌙</button>
+        </div>
+      </nav>
+    </div>
   </div>
 </header>
 
-<main>
-  <div class="container">
-    <article>
-      <header class="post-header">
-        <h1>Hello, World! 我的博客開張了</h1>
-        <div class="post-meta">
-          <span>📅 2026-11-16</span>
-          <span class="post-tag">生活</span>
-          <span class="post-tag">公告</span>
-          <span>📖 約 2 分鐘閱讀</span>
-        </div>
-      </header>
-      <div class="post-content">
-        <p>歡迎來到 Dickens 的生活雜記！</p>
-        <p>這個博客的誕生，源自於一個簡單的需求：記錄生活中的點點滴滴，免得以後老了忘記去哪找以前的資料。</p>
-        <p>你可能會問：「為什麼不直接用 Notion 或 Google Docs？」</p>
-        <p>因為...我就是想有一個自己的地方。一個完全由自己掌控、可以隨時存取、不會被任何平台限制的地方。</p>
-
-        <h2>這個博客會寫什麼？</h2>
-        <p>什麼都寫！技術筆記、網路設定、生活雜記、踩坑經驗...想到什麼就寫什麼。</p>
-        <ul>
-          <li>技術教學與筆記</li>
-          <li>生活中的大小事</li>
-          <li>工具使用心得</li>
-          <li>踩坑與除錯記錄</li>
-        </ul>
-
-        <h2>技術架構</h2>
-        <p>這個博客使用純 HTML / CSS / JavaScript 建立，託管於 GitHub Pages。沒有複雜的建置流程，沒有框架依賴，就是簡單的靜態檔案。</p>
-        <p>如果你也想建立自己的博客，歡迎參考這個專案的原始碼。</p>
-
-        <blockquote>「記錄，是為了不遺忘。」</blockquote>
-
-        <p>就這樣，開始寫吧！</p>
+<!-- Post Header -->
+<div class="container" style="padding-top:32px;">
+  <div class="post-detail-header">
+    <span class="category-badge">生活</span>
+    <h1>Hello, World! 我的博客開張了</h1>
+    <div class="post-meta">
+      <div class="author">
+        <div class="author-avatar">D</div>
+        <span>Dickens</span>
       </div>
-    </article>
-
-    <div class="post-nav">
-      <div></div>
-      <a href="vigorap-1062c-setup.html" class="next">
-        <div class="nav-label">下一篇 →</div>
-        <div class="nav-title">Vigor 2135 + VigorAP 1062C 設定教學</div>
-      </a>
+      <span>📅 2026-11-16</span>
+      <span>📖 2 分鐘閱讀</span>
+      <span>👁 128 次瀏覽</span>
     </div>
   </div>
-</main>
 
+  <div class="post-detail-content">
+    <p>歡迎來到 Dickens 的生活雜記！</p>
+    <p>這個博客的誕生，源自於一個簡單的需求：記錄生活中的點點滴滴，免得以後老了忘記去哪找以前的資料。</p>
+    <p>你可能會問：「為什麼不直接用 Notion 或 Google Docs？」</p>
+    <p>因為...我就是想有一個自己的地方。一個完全由自己掌控、可以隨時存取、不會被任何平台限制的地方。</p>
+
+    <h2>這個博客會寫什麼？</h2>
+    <p>什麼都寫！技術筆記、網路設定、生活雜記、踩坑經驗...想到什麼就寫什麼。</p>
+    <ul>
+      <li>技術教學與筆記</li>
+      <li>生活中的大小事</li>
+      <li>工具使用心得</li>
+      <li>踩坑與除錯記錄</li>
+    </ul>
+
+    <h2>技術架構</h2>
+    <p>這個博客使用純 HTML / CSS / JavaScript 建立，託管於 GitHub Pages。沒有複雜的建置流程，沒有框架依賴，就是簡單的靜態檔案。</p>
+    <p>如果你也想建立自己的博客，歡迎參考這個專案的原始碼。</p>
+
+    <blockquote>「記錄，是為了不遺忘。」</blockquote>
+
+    <p>就這樣，開始寫吧！</p>
+  </div>
+
+  <div class="post-detail-tags">
+    <a href="../posts.html?tag=生活" class="post-detail-tag">生活</a>
+    <a href="../posts.html?tag=公告" class="post-detail-tag">公告</a>
+  </div>
+
+  <div class="post-nav">
+    <div></div>
+    <a href="vigorap-1062c-setup.html" class="next">
+      <div class="nav-label">下一篇 →</div>
+      <div class="nav-title">Vigor 2135 + VigorAP 1062C 設定教學</div>
+    </a>
+  </div>
+</div>
+
+<!-- Footer -->
 <footer class="site-footer">
   <div class="container">
-    <div class="footer-links">
-      <a href="https://github.com/pkjoe88" target="_blank">GitHub</a>
-      <a href="../posts.html">文章</a>
-      <a href="../about.html">關於</a>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Dickens 的生活雜記</h4>
+        <p>記錄生活中的點點滴滴</p>
+      </div>
+      <div class="footer-col">
+        <h4>快速連結</h4>
+        <ul>
+          <li><a href="../index.html">首頁</a></li>
+          <li><a href="../posts.html">所有文章</a></li>
+          <li><a href="../about.html">關於</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>主題分類</h4>
+        <ul>
+          <li><a href="../posts.html?tag=技術">技術</a></li>
+          <li><a href="../posts.html?tag=生活">生活</a></li>
+          <li><a href="../posts.html?tag=網路">網路</a></li>
+        </ul>
+      </div>
     </div>
-    <p>&copy; 2026 Dickens &middot; 用 GitHub Pages 建立</p>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Dickens &middot; 用 GitHub Pages 建立</p>
+    </div>
   </div>
 </footer>
 
 <button class="back-to-top" id="backToTop" aria-label="回到頂部">↑</button>
 
 <script src="../js/main.js"></script>
+<script>
+document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-TW', {year:'numeric', month:'long', day:'numeric'});
+</script>
 </body>
 </html>

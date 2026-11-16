@@ -12,65 +12,122 @@
 </head>
 <body>
 
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="container">
+    <div class="top-bar-left">
+      <span>📅 <span id="currentDate"></span></span>
+    </div>
+    <div class="top-bar-right">
+      <a href="https://github.com/pkjoe88" target="_blank" class="social-icon" title="GitHub">GH</a>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
 <header class="site-header">
   <div class="container">
-    <nav class="nav">
-      <a href="index.html" class="site-title">Dickens</a>
-      <ul class="nav-links">
-        <li><a href="index.html">首頁</a></li>
-        <li><a href="posts.html">文章</a></li>
-        <li><a href="about.html">關於</a></li>
-        <li><button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切換主題">🌙</button></li>
-      </ul>
-    </nav>
+    <div class="header-main">
+      <nav class="nav">
+        <a href="index.html" class="site-logo">
+          <div class="logo-icon">D</div>
+          <span class="site-title">Dickens</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="index.html">首頁</a></li>
+          <li><a href="posts.html" class="active">文章</a></li>
+          <li><a href="about.html">關於</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="search-btn" title="搜尋">🔍</button>
+          <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切換主題">🌙</button>
+        </div>
+      </nav>
+    </div>
   </div>
 </header>
 
-<section class="hero" style="padding:48px 0 36px;">
+<!-- Hero -->
+<section class="hero-section" style="padding:40px 0;">
   <div class="container">
-    <span class="hero-badge">📚 所有文章</span>
-    <h1 style="font-size:32px;">文章列表</h1>
-    <p>搜尋、篩選，找到你想看的內容</p>
+    <div style="position:relative; z-index:1; color:#fff;">
+      <span class="category-badge" style="background:rgba(255,255,255,0.25);">📚 文章列表</span>
+      <h1 style="font-size:32px; font-weight:900; margin:12px 0 8px;">所有文章</h1>
+      <p style="opacity:0.9;">搜尋、篩選，找到你想看的內容</p>
+    </div>
   </div>
 </section>
 
+<!-- Main -->
 <main>
-  <div class="container-wide">
-    <div class="layout-with-sidebar">
+  <div class="container">
+    <div class="main-layout">
       <div>
-        <div class="search-box">
-          <span class="search-icon">🔍</span>
-          <input type="text" class="search-input" id="searchInput" placeholder="搜尋文章標題、摘要、標籤..." oninput="filterPosts()">
+        <!-- Search -->
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="搜尋文章標題、摘要、標籤..." oninput="filterPosts()">
         </div>
+
+        <!-- Tags -->
         <div class="tags-filter" id="tagsFilter"></div>
-        <div class="post-grid" id="postList"></div>
+
+        <!-- Post List -->
+        <div id="postList"></div>
         <div class="empty-state" id="emptyState" style="display:none;">
           <div class="icon">🔍</div>
           <p>沒有找到相關文章</p>
         </div>
       </div>
+
+      <!-- Sidebar -->
       <aside class="sidebar">
-        <div class="sidebar-widget">
-          <h3>標籤</h3>
-          <div class="sidebar-tag-cloud" id="sidebarTags"></div>
+        <div class="sidebar-widget about-widget">
+          <div class="avatar">D</div>
+          <h4>Dickens</h4>
+          <p>生活雜記的作者</p>
+          <div class="social-links">
+            <a href="https://github.com/pkjoe88" target="_blank" class="social-link">GH</a>
+          </div>
         </div>
+
+        <div class="sidebar-widget">
+          <h3>標籤雲</h3>
+          <div class="tag-cloud" id="sidebarTags"></div>
+        </div>
+
         <div class="sidebar-widget">
           <h3>最新文章</h3>
-          <ul class="sidebar-recent" id="sidebarRecent"></ul>
+          <div id="sidebarRecent"></div>
         </div>
       </aside>
     </div>
   </div>
 </main>
 
+<!-- Footer -->
 <footer class="site-footer">
   <div class="container">
-    <div class="footer-links">
-      <a href="https://github.com/pkjoe88" target="_blank">GitHub</a>
-      <a href="posts.html">文章</a>
-      <a href="about.html">關於</a>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Dickens 的生活雜記</h4>
+        <p>記錄生活中的點點滴滴</p>
+      </div>
+      <div class="footer-col">
+        <h4>快速連結</h4>
+        <ul>
+          <li><a href="index.html">首頁</a></li>
+          <li><a href="posts.html">所有文章</a></li>
+          <li><a href="about.html">關於</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>主題分類</h4>
+        <ul id="footerTags"></ul>
+      </div>
     </div>
-    <p>&copy; 2026 Dickens &middot; 用 GitHub Pages 建立</p>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Dickens &middot; 用 GitHub Pages 建立</p>
+    </div>
   </div>
 </footer>
 
@@ -78,10 +135,17 @@
 
 <script src="js/main.js"></script>
 <script>
+document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-TW', {year:'numeric', month:'long', day:'numeric'});
+
 let allPosts = [];
 let activeTag = null;
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Handle URL params
+  const params = new URLSearchParams(window.location.search);
+  const tagParam = params.get('tag');
+  if (tagParam) activeTag = tagParam;
+
   fetch('data/posts.json')
     .then(r => r.json())
     .then(posts => {
@@ -89,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
       renderTags();
       renderSidebarTags();
       renderSidebarRecent();
-      renderPosts(allPosts);
+      filterPosts();
     })
     .catch(err => console.error('Failed to load posts:', err));
 });
@@ -100,13 +164,13 @@ function renderTags() {
   const container = document.getElementById('tagsFilter');
   container.innerHTML = '';
   const allBtn = document.createElement('button');
-  allBtn.className = 'tag-btn active';
+  allBtn.className = 'tag-btn' + (!activeTag ? ' active' : '');
   allBtn.textContent = '全部';
   allBtn.onclick = () => filterByTag(null);
   container.appendChild(allBtn);
   tags.forEach(tag => {
     const btn = document.createElement('button');
-    btn.className = 'tag-btn';
+    btn.className = 'tag-btn' + (activeTag === tag ? ' active' : '');
     btn.textContent = tag;
     btn.onclick = () => filterByTag(tag);
     container.appendChild(btn);
@@ -120,10 +184,8 @@ function renderSidebarTags() {
   container.innerHTML = '';
   tags.forEach(tag => {
     const a = document.createElement('a');
-    a.className = 'sidebar-tag';
-    a.href = '#';
+    a.href = `posts.html?tag=${encodeURIComponent(tag)}`;
     a.textContent = tag;
-    a.onclick = (e) => { e.preventDefault(); filterByTag(tag); window.scrollTo({top:0, behavior:'smooth'}); };
     container.appendChild(a);
   });
 }
@@ -132,9 +194,16 @@ function renderSidebarRecent() {
   const container = document.getElementById('sidebarRecent');
   container.innerHTML = '';
   allPosts.slice(0, 5).forEach(post => {
-    const li = document.createElement('li');
-    li.innerHTML = `<a href="${post.file}">${post.title}<div class="date">${post.date}</div></a>`;
-    container.appendChild(li);
+    const topicIcons = {'技術':'💻', '生活':'📝', '網路':'🌐', 'GitHub':'🐙', '公告':'📢'};
+    container.innerHTML += `
+      <div class="popular-post">
+        <div class="thumb">${topicIcons[post.tags[0]] || '📄'}</div>
+        <div class="info">
+          <h4><a href="${post.file}">${post.title}</a></h4>
+          <div class="date">${post.date}</div>
+        </div>
+      </div>
+    `;
   });
 }
 
@@ -147,7 +216,7 @@ function filterByTag(tag) {
 }
 
 function filterPosts() {
-  const query = document.getElementById('searchInput').value.toLowerCase();
+  const query = (document.getElementById('searchInput').value || '').toLowerCase();
   const filtered = allPosts.filter(post => {
     const matchTag = !activeTag || post.tags.includes(activeTag);
     const matchQuery = !query ||
@@ -168,27 +237,40 @@ function renderPosts(posts) {
     return;
   }
   empty.style.display = 'none';
+  const topicIcons = {'技術':'💻', '生活':'📝', '網路':'🌐', 'GitHub':'🐙', '公告':'📢'};
   posts.forEach(post => {
-    const card = document.createElement('div');
-    card.className = 'post-card';
+    const item = document.createElement('div');
+    item.className = 'post-list-item';
     const readTime = Math.max(1, Math.ceil(post.excerpt.length / 100));
-    card.innerHTML = `
-      <div class="post-card-meta">
-        <span>${post.date}</span>
-        <div class="post-card-tags">
-          ${post.tags.map(t => `<span class="post-tag">${t}</span>`).join('')}
+    item.innerHTML = `
+      <div class="thumb">${topicIcons[post.tags[0]] || '📄'}</div>
+      <div class="content">
+        <h3><a href="${post.file}">${post.title}</a></h3>
+        <p>${post.excerpt}</p>
+        <div class="meta">
+          <span>📅 ${post.date}</span>
+          <span>📖 ${readTime} 分鐘</span>
+          ${post.tags.map(t => `<span>${t}</span>`).join('')}
         </div>
       </div>
-      <h2 class="post-card-title"><a href="${post.file}">${post.title}</a></h2>
-      <p class="post-card-excerpt">${post.excerpt}</p>
-      <div class="post-card-footer">
-        <span class="read-time">📖 約 ${readTime} 分鐘閱讀</span>
-        <a href="${post.file}" class="read-more">繼續閱讀 →</a>
-      </div>
     `;
-    container.appendChild(card);
+    container.appendChild(item);
   });
 }
+
+// Footer tags
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(() => {
+    const footerTags = document.getElementById('footerTags');
+    if (footerTags && allPosts.length) {
+      const tags = new Set();
+      allPosts.forEach(p => p.tags.forEach(t => tags.add(t)));
+      tags.forEach(tag => {
+        footerTags.innerHTML += `<li><a href="posts.html?tag=${encodeURIComponent(tag)}">${tag}</a></li>`;
+      });
+    }
+  }, 500);
+});
 </script>
 </body>
 </html>
