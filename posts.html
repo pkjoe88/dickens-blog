@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文章列表 - Dickens 的生活雜記</title>
+<meta name="description" content="Dickens 的所有文章">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <nav class="nav">
+      <a href="index.html" class="site-title">Dickens</a>
+      <ul class="nav-links">
+        <li><a href="index.html">首頁</a></li>
+        <li><a href="posts.html">文章</a></li>
+        <li><a href="about.html">關於</a></li>
+        <li><button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切換主題">🌙</button></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <h1 style="font-size:28px; font-weight:800; margin:40px 0 24px; letter-spacing:-0.5px;">所有文章</h1>
+
+    <div class="search-box">
+      <input type="text" class="search-input" id="searchInput" placeholder="搜尋文章..." oninput="filterPosts()">
+    </div>
+
+    <div class="tags-filter" id="tagsFilter"></div>
+
+    <ul class="post-list" id="postList"></ul>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <p>沒有找到相關文章</p>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Dickens &middot; 用 <a href="https://pages.github.com/" target="_blank">GitHub Pages</a> 建立</p>
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="回到頂部">↑</button>
+
+<script src="js/main.js"></script>
+<script>
+let allPosts = [];
+let activeTag = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+  fetch('data/posts.json')
+    .then(r => r.json())
+    .then(posts => {
+      allPosts = posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+      renderTags();
+      renderPosts(allPosts);
+    })
+    .catch(err => {
+      console.error('Failed to load posts:', err);
+    });
+});
+
+function renderTags() {
+  const tags = new Set();
+  allPosts.forEach(p => p.tags.forEach(t => tags.add(t)));
+  const container = document.getElementById('tagsFilter');
+  container.innerHTML = '';
+  // "All" button
+  const allBtn = document.createElement('button');
+  allBtn.className = 'tag-btn active';
+  allBtn.textContent = '全部';
+  allBtn.onclick = () => filterByTag(null);
+  container.appendChild(allBtn);
+  tags.forEach(tag => {
+    const btn = document.createElement('button');
+    btn.className = 'tag-btn';
+    btn.textContent = tag;
+    btn.onclick = () => filterByTag(tag);
+    container.appendChild(btn);
+  });
+}
+
+function filterByTag(tag) {
+  activeTag = tag;
+  document.querySelectorAll('.tag-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === (tag || '全部'));
+  });
+  filterPosts();
+}
+
+function filterPosts() {
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = allPosts.filter(post => {
+    const matchTag = !activeTag || post.tags.includes(activeTag);
+    const matchQuery = !query ||
+      post.title.toLowerCase().includes(query) ||
+      post.excerpt.toLowerCase().includes(query) ||
+      post.tags.some(t => t.toLowerCase().includes(query));
+    return matchTag && matchQuery;
+  });
+  renderPosts(filtered);
+}
+
+function renderPosts(posts) {
+  const list = document.getElementById('postList');
+  const empty = document.getElementById('emptyState');
+  list.innerHTML = '';
+  if (posts.length === 0) {
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  posts.forEach(post => {
+    const li = document.createElement('li');
+    li.className = 'post-item';
+    li.innerHTML = `
+      <div class="post-meta">
+        <span>${post.date}</span>
+        ${post.tags.map(t => `<span class="post-tag">${t}</span>`).join('')}
+      </div>
+      <h2 class="post-title"><a href="${post.file}">${post.title}</a></h2>
+      <p class="post-excerpt">${post.excerpt}</p>
+      <a href="${post.file}" class="post-read-more">繼續閱讀 →</a>
+    `;
+    list.appendChild(li);
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "hello-world",
+    "title": "Hello, World! 我的博客開張了",
+    "date": "2026-11-16",
+    "tags": ["生活", "公告"],
+    "excerpt": "歡迎來到 Dickens 的生活雜記。這裡記錄著生活中的點點滴滴，免得以後老了忘記去哪找資料。",
+    "file": "posts/hello-world.html"
+  },
+  {
+    "id": "vigorap-1062c-setup",
+    "title": "Vigor 2135 + VigorAP 1062C 設定教學",
+    "date": "2026-11-16",
+    "tags": ["技術", "網路"],
+    "excerpt": "Vigor 2135 本身沒有無線功能，透過 APM 中央管理功能搭配 VigorAP 1062C 提供 Wi-Fi 6 訊號的完整設定指南。",
+    "file": "posts/vigorap-1062c-setup.html"
+  },
+  {
+    "id": "github-pages-custom-domain",
+    "title": "GitHub Pages 自訂域名設定心得",
+    "date": "2026-11-16",
+    "tags": ["技術", "GitHub"],
+    "excerpt": "記錄使用 dickens99.pp.ua 自訂域名的設定過程，包括 DNS 設定、HTTPS 憑證簽發等踩坑經驗。",
+    "file": "posts/github-pages-custom-domain.html"
+  }
+]

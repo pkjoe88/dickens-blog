@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vigor 2135 + VigorAP 1062C 設定教學 - Dickens 的生活雜記</title>
+<meta name="description" content="Vigor 2135 搭配 VigorAP 1062C 的完整設定指南">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <nav class="nav">
+      <a href="../index.html" class="site-title">Dickens</a>
+      <ul class="nav-links">
+        <li><a href="../index.html">首頁</a></li>
+        <li><a href="../posts.html">文章</a></li>
+        <li><a href="../about.html">關於</a></li>
+        <li><button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切換主題">🌙</button></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <article>
+      <header class="post-header">
+        <h1>Vigor 2135 + VigorAP 1062C 設定教學</h1>
+        <div class="post-meta">
+          <span>2026-11-16</span>
+          <span class="post-tag">技術</span>
+          <span class="post-tag">網路</span>
+        </div>
+      </header>
+      <div class="post-content">
+        <p>Vigor 2135 本身不具備無線功能，需透過 VigorAP 1062C 提供 Wi-Fi 訊號。本文記錄完整的 APM（中央 AP 管理）設定流程。</p>
+
+        <h2>網路架構</h2>
+        <p>Vigor 2135 作為路由器 + APM 主控端，VigorAP 1062C 作為吸頂式 AP 提供 Wi-Fi 6 訊號。</p>
+
+        <h2>設定步驟摘要</h2>
+        <ol>
+          <li><strong>實體連接</strong>：將 VigorAP 1062C 的 LAN/PoE 埠接至 Vigor 2135 的 LAN 口</li>
+          <li><strong>啟用 APM</strong>：Vigor 2135 → System Maintenance → Management → 勾選 Enable AP Management</li>
+          <li><strong>授權 AP</strong>：Central Management → AP → Status → 若出現 Unauthorized，點 Password 輸入帳密</li>
+          <li><strong>建立 WLAN Profile</strong>：Central Management → AP → WLAN Profile → 設定 SSID、密碼、安全性</li>
+          <li><strong>套用設定檔</strong>：Central Management → AP → Device → 勾選 Use AP Profile → Apply</li>
+        </ol>
+
+        <h2>後續加裝第二台 AP</h2>
+        <p>APM 已啟用後，加裝第二台 1062C 更簡單：授權 + 套用相同設定檔即可，兩台 AP 會廣播相同 SSID，裝置自動漫遊。</p>
+
+        <h2>注意事項</h2>
+        <ul>
+          <li>多台 AP 記得做頻道規劃（2.4GHz 用 1/6/11）</li>
+          <li>建議在 Vigor 2135 的 LAN → Bind IP to MAC 固定每台 AP 的 IP</li>
+          <li>Vigor 2135 最多可管理 50 台 VigorAP</li>
+        </ul>
+
+        <blockquote>完整圖文教學請參考 <a href="https://dickens99.pp.ua" target="_blank">VigorAP 1062C 教學網站</a></blockquote>
+      </div>
+    </article>
+
+    <div style="margin-top:32px; padding-top:16px; border-top:1px solid var(--border);">
+      <a href="../posts.html" class="post-read-more">← 返回文章列表</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Dickens &middot; 用 <a href="https://pages.github.com/" target="_blank">GitHub Pages</a> 建立</p>
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="回到頂部">↑</button>
+
+<script src="../js/main.js"></script>
+</body>
+</html>
