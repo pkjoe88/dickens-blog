@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ConfigTranslator — 伺服器設定檔註解中文化工具 - Dickens 的生活雜記</title>
+<meta name="description" content="將 php.ini 與 Apache httpd.conf 的英文註解自動翻譯成繁體中文的工具，雙引擎（Gemini + gtx）、翻譯快取、CLI/GUI 雙介面">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  /* Article-specific styles */
+  .art-highlight { background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent), color-mix(in srgb, var(--accent-pink) 10%, transparent)); border: 2px solid var(--accent-light); border-radius: var(--radius); padding: 16px 20px; margin: 20px 0; font-weight: 500; color: var(--text); line-height: 1.6; }
+
+  .art-table { width: 100%; border-collapse: collapse; margin: 16px 0; border-radius: var(--radius-sm); overflow: hidden; }
+  .art-table th, .art-table td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; font-size: 14px; vertical-align: top; }
+  .art-table th { background: var(--accent); color: #fff; font-weight: 600; white-space: nowrap; }
+  .art-table tr:nth-child(even) { background: var(--bg-secondary); }
+
+  .art-note { background: color-mix(in srgb, #f59e0b 8%, transparent); border-left: 4px solid #f59e0b; padding: 14px 18px; margin: 16px 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 15px; color: var(--text-secondary); }
+  .art-note.warn { background: color-mix(in srgb, #ef4444 8%, transparent); border-left-color: #ef4444; }
+  .art-note.info { background: color-mix(in srgb, var(--accent) 8%, transparent); border-left-color: var(--accent); }
+  .art-note.ok { background: color-mix(in srgb, #10b981 8%, transparent); border-left-color: #10b981; }
+
+  .art-step { display: flex; align-items: center; gap: 12px; margin: 32px 0 14px; }
+  .art-step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--bg-gradient); color: #fff; font-weight: 800; font-size: 16px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(124,92,255,0.3); }
+  .art-step h2 { font-size: 24px; font-weight: 800; color: var(--text); margin: 0; }
+
+  .art-console { background: #0d1117; color: #e6edf3; border-radius: var(--radius); padding: 18px 20px; margin: 16px 0; font-family: "SF Mono", "Fira Code", "Consolas", monospace; font-size: 14px; line-height: 1.7; overflow-x: auto; border: 1px solid #30363d; }
+  .art-console .cmt { color: #8b949e; }
+  .art-console .cmd { color: #7ee787; }
+  .art-console .out { color: #e6edf3; }
+
+  .art-tree { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 20px; margin: 16px 0; font-family: "SF Mono", Consolas, monospace; font-size: 13px; line-height: 1.8; overflow-x: auto; color: var(--text-secondary); white-space: pre; }
+  .art-tree b { color: var(--accent); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="container">
+    <div class="top-bar-left">
+      <span>📅 <span id="currentDate"></span></span>
+    </div>
+    <div class="top-bar-right">
+      <a href="https://github.com/pkjoe88" target="_blank" class="social-icon" title="GitHub">GH</a>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="container">
+    <div class="header-main">
+      <nav class="nav">
+        <a href="../index.html" class="site-logo">
+          <div class="logo-icon">D</div>
+          <span class="site-title">Dickens</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="../index.html">首頁</a></li>
+          <li><a href="../posts.html">文章</a></li>
+          <li><a href="../about.html">關於</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="search-btn" onclick="window.location='../posts.html'" title="搜尋">🔍</button>
+          <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切換主題">🌙</button>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<!-- Post Header -->
+<div class="container" style="padding-top:32px;">
+  <div class="post-detail-header">
+    <span class="category-badge">工具</span>
+    <h1>ConfigTranslator — 伺服器設定檔註解中文化工具</h1>
+    <div class="post-meta">
+      <div class="author">
+        <div class="author-avatar">D</div>
+        <span>Dickens</span>
+      </div>
+      <span>📅 2026-11-17</span>
+      <span>📖 6 分鐘閱讀</span>
+      <span>👁 54 次瀏覽</span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="post-detail-content">
+
+    <div class="art-highlight">
+      🈶 <strong>ConfigTranslator</strong> — 把 <code>php.ini</code> 與 Apache <code>httpd.conf</code>（含 <code>httpd-ssl.conf</code>、<code>httpd-vhosts.conf</code>）裡的<strong>英文註解</strong>自動翻譯成<strong>繁體中文（台灣口語）</strong>的桌面／命令列工具。主引擎 Google Gemini（可控制口吻），備援 Google gtx，內建翻譯快取與多金鑰輪替。
+    </div>
+
+    <h2 style="padding-left:16px;">為什麼要做這個</h2>
+    <p><code>php.ini</code> 和 <code>httpd.conf</code> 的官方註解都是英文，調設定時要一直查單字。這個工具<strong>只翻譯註解文字</strong>，保留所有指令、參數名、檔名、URL、數字與程式碼片段原樣——設定檔語法完全不會被破壞，翻完照常能跑。</p>
+
+    <!-- Features -->
+    <div class="art-step">
+      <div class="art-step-num">✨</div>
+      <h2>主要功能</h2>
+    </div>
+
+    <table class="art-table">
+      <tr><th>功能</th><th>說明</th></tr>
+      <tr>
+        <td><strong>雙引擎翻譯</strong></td>
+        <td>主引擎 Google Gemini（REST API，台灣口語 prompt）；備援 Google gtx（<code>translate.googleapis.com</code>），Gemini 無金鑰、額度用盡或連線失敗時自動接手</td>
+      </tr>
+      <tr>
+        <td><strong>批次翻譯</strong></td>
+        <td>多段註解編號後一次送出（預設 12 段／次），在免費額度下盡量減少呼叫次數</td>
+      </tr>
+      <tr>
+        <td><strong>多金鑰輪替</strong></td>
+        <td>支援 <code>GEMINI_API_KEYS</code>（逗號／分號分隔）金鑰池；單把額度用盡自動標死換下一把，短暫 429/503 退避重試</td>
+      </tr>
+      <tr>
+        <td><strong>智慧過濾</strong></td>
+        <td>被註解掉的參數行（<code>;extension=...</code>）、段落標頭（<code>[PHP]</code>）、<code>&lt;...&gt;</code> 標籤行不送翻</td>
+      </tr>
+      <tr>
+        <td><strong>連續註解合併</strong></td>
+        <td>相鄰註解行先合併成一段再翻，譯文更連貫；輸出以 76 字元寬度自動折行</td>
+      </tr>
+      <tr>
+        <td><strong>行尾註解支援</strong></td>
+        <td>設定行後的行尾註解（<code>directive = value  ; comment</code>）也會翻譯並保留原設定</td>
+      </tr>
+      <tr>
+        <td><strong>編碼自動偵測</strong></td>
+        <td>先讀 bytes 再嚴格解碼，依序嘗試 <code>utf-8-sig</code>、<code>utf-8</code>、<code>big5</code>、<code>gbk</code>、<code>cp950</code>、<code>cp1252</code>；失敗時回報不乾淨</td>
+      </tr>
+      <tr>
+        <td><strong>翻譯快取</strong></td>
+        <td>譯文落盤到 <code>translation_cache.json</code>，重跑直接命中快取、接續未完成的部分；統計 Gemini／gtx／快取命中／失敗段數</td>
+      </tr>
+      <tr>
+        <td><strong>失敗回報</strong></td>
+        <td>翻譯失敗的段落保留英文原文，並列出失敗行號與預覽文字</td>
+      </tr>
+      <tr>
+        <td><strong>GUI 便利功能</strong></td>
+        <td>左右窗格 50:50 均分、雙向同步捲動、右鍵選單、匯入／儲存、清空、進度列</td>
+      </tr>
+      <tr>
+        <td><strong>可打包成 EXE</strong></td>
+        <td>附 <code>ConfigTranslator.spec</code>，PyInstaller 打包為無主控台視窗的執行檔</td>
+      </tr>
+    </table>
+
+    <!-- Architecture -->
+    <div class="art-step">
+      <div class="art-step-num">📁</div>
+      <h2>資料夾結構</h2>
+    </div>
+
+    <div class="art-tree">translate/
+├── <b>translator.py</b>          # 翻譯核心（CLI 入口 + 引擎/快取/設定檔處理）
+├── <b>gui_translator.py</b>       # Tkinter 圖形介面（translator.py 的 GUI 殼）
+├── ConfigTranslator.spec    # PyInstaller 打包設定
+│
+├── php.ini                  # 原始 php.ini
+├── php_zh.ini               # 翻譯後的 php.ini（產生）
+├── httpd.conf               # 原始 Apache 設定
+├── httpd_zh.conf            # 翻譯後的 httpd.conf（產生）
+├── httpd-ssl.conf / httpd-vhosts.conf          # SSL / vhosts 設定
+├── httpd-ssl_zh.conf / httpd-vhosts_zh.conf    # 翻譯後（產生）
+│
+├── translation_cache.json   # 翻譯快取（CLI/GUI 共用）
+├── build/                   # PyInstaller 中間檔（產生）
+└── dist/                    # 打包產物
+    └── ConfigTranslator.exe</div>
+
+    <!-- Install -->
+    <div class="art-step">
+      <div class="art-step-num">1</div>
+      <h2>安裝與環境需求</h2>
+    </div>
+
+    <ul>
+      <li>Python <strong>3.8 以上</strong>（開發環境為 Python 3.13）</li>
+      <li><strong>僅使用標準函式庫</strong>（<code>tkinter</code>、<code>urllib</code>、<code>json</code>、<code>re</code>、<code>threading</code>、<code>textwrap</code> 等）——<strong>不需 <code>pip install</code> 任何套件</strong></li>
+      <li>需要網路連線（Gemini REST API / Google gtx）</li>
+      <li>使用 Gemini 主引擎需設定環境變數（擇一）：
+        <ul>
+          <li><code>GEMINI_API_KEYS</code>：多把金鑰，逗號或分號分隔（不同 Google Cloud 專案）</li>
+          <li><code>GEMINI_API_KEY</code>：單把金鑰（後備）</li>
+        </ul>
+      </li>
+      <li>可選：<code>TRANSLATE_GEMINI_MODEL</code> 覆寫模型名稱（預設 <code>gemini-3.6-flash</code>）</li>
+    </ul>
+
+    <div class="art-note warn">
+      🔐 金鑰只透過環境變數提供，切勿寫入程式碼或提交至版本庫。
+    </div>
+
+    <!-- CLI -->
+    <div class="art-step">
+      <div class="art-step-num">2</div>
+      <h2>用法一：命令列（CLI）</h2>
+    </div>
+
+    <div class="art-console">
+<span class="cmd">cd D:\opencode\translate</span><br>
+<span class="cmd">python translator.py</span><br>
+<br>
+<span class="out">1. 翻譯原始的 php.ini</span><br>
+<span class="out">2. 翻譯原始的 httpd.conf</span><br>
+<span class="out">請選擇要翻譯的檔案類型 (輸入 1 或 2):</span>
+    </div>
+
+    <p>接著輸入來源檔名（例如 <code>php.ini</code> 或 <code>httpd.conf</code>），程式會產生 <code>php_zh.ini</code> 或 <code>httpd_zh.conf</code>，並印出統計與失敗段落清單。</p>
+
+    <p>批次／自動化可直接呼叫函式：</p>
+    <div class="art-console">
+<span class="cmd">from translator import translate_config_file</span><br>
+<span class="cmd">translate_config_file(<span class="out">"php.ini"</span>, <span class="out">"php_zh.ini"</span>, comment_char=<span class="out">";"</span>)</span><br>
+<span class="cmd">translate_config_file(<span class="out">"httpd.conf"</span>, <span class="out">"httpd_zh.conf"</span>, comment_char=<span class="out">"#"</span>)</span>
+    </div>
+
+    <!-- GUI -->
+    <div class="art-step">
+      <div class="art-step-num">3</div>
+      <h2>用法二：圖形介面（GUI）</h2>
+    </div>
+
+    <div class="art-console">
+<span class="cmd">python gui_translator.py</span>
+    </div>
+
+    <ol>
+      <li>按「📂 匯入檔案」選擇 <code>.ini</code> / <code>.conf</code> / <code>.txt</code>，或直接貼上文字</li>
+      <li>按「🚀 開始翻譯」，左側原文、右側譯文同步顯示（雙向同步捲動）</li>
+      <li>按「💾 儲存檔案」將右側譯文存成新檔</li>
+      <li>「🧹 清空內容」可重置兩側文字</li>
+    </ol>
+
+    <!-- EXE -->
+    <div class="art-step">
+      <div class="art-step-num">4</div>
+      <h2>用法三：打包成 EXE（選用）</h2>
+    </div>
+
+    <div class="art-console">
+<span class="cmt"># 需先安裝 PyInstaller</span><br>
+<span class="cmd">pip install pyinstaller</span><br>
+<span class="cmd">cd D:\opencode\translate</span><br>
+<span class="cmd">pyinstaller ConfigTranslator.spec</span>
+    </div>
+
+    <p>產物位於 <code>dist/ConfigTranslator.exe</code>（無主控台視窗）。打包時會一併使用同目錄的 <code>translation_cache.json</code>（若存在）。</p>
+
+    <!-- Tech Stack -->
+    <div class="art-step">
+      <div class="art-step-num">🧱</div>
+      <h2>技術堆疊</h2>
+    </div>
+
+    <table class="art-table">
+      <tr><th>類別</th><th>技術</th></tr>
+      <tr><td>語言</td><td>Python 3.8+（標準函式庫）</td></tr>
+      <tr><td>GUI</td><td>Tkinter（<code>ttk</code>、<code>scrolledtext</code>、<code>filedialog</code>、<code>messagebox</code>）</td></tr>
+      <tr><td>HTTP</td><td><code>urllib.request</code>（Gemini REST API、Google gtx）</td></tr>
+      <tr><td>資料</td><td><code>json</code>（翻譯快取）、<code>re</code>（註解／指令辨識）</td></tr>
+      <tr><td>文字處理</td><td><code>textwrap</code>（76 字元折行）、<code>os</code>/<code>sys</code></td></tr>
+      <tr><td>並行</td><td><code>threading</code>（GUI 翻譯不阻塞介面）</td></tr>
+      <tr><td>打包</td><td>PyInstaller（<code>ConfigTranslator.spec</code>，UPX 壓縮）</td></tr>
+      <tr><td>AI 引擎</td><td>Google Gemini（<code>gemini-3.6-flash</code> 預設，可覆寫）、Google gtx 備援</td></tr>
+    </table>
+
+    <!-- Notes -->
+    <div class="art-step">
+      <div class="art-step-num">⚠️</div>
+      <h2>注意事項（踩坑筆記）</h2>
+    </div>
+
+    <div class="art-note warn">
+      🧠 <strong>thinkingBudget 必關</strong>：Gemini 3.x flash 是 thinking 模型，不關閉會吃光 <code>maxOutputTokens</code> 導致譯文截斷（程式已處理）。
+    </div>
+
+    <div class="art-note info">
+      💰 <strong>免費額度</strong>：Gemini 免費額度以「每專案、每模型、次數」計算；429 回覆若含小時級 <code>retry in</code> 會把該把金鑰標死並換下一把，不做長時間等待。
+    </div>
+
+    <div class="art-note info">
+      🗣 <strong>口吻限制</strong>：gtx 備援是固定書面腔，只有 Gemini 能依 prompt 輸出台灣口語。
+    </div>
+
+    <ul>
+      <li><strong>不需第三方依賴</strong>：僅標準函式庫（PyInstaller 僅打包時需要）</li>
+      <li><strong>網路需求</strong>：無網路或無金鑰時，Gemini 段落交由 gtx 處理，全部失敗則保留原文</li>
+      <li><strong>快取共用</strong>：CLI 與 GUI 共用同一個 <code>translation_cache.json</code>；刪除或搬移快取會重新翻譯</li>
+      <li><strong>輸出編碼</strong>：輸出一律 UTF-8；來源檔編碼自動偵測，偵測不乾淨會顯示警告</li>
+      <li><strong>不破壞設定</strong>：僅翻譯註解，指令／參數／URL／數字／程式碼片段保留原文</li>
+      <li><strong>建置產物</strong>：<code>build/</code>、<code>dist/</code>、<code>__pycache__/</code> 為產生物，加入 <code>.gitignore</code> 勿提交</li>
+      <li><strong>版本</strong>：本工具為 V6（沿用 V5 已修的端點、編碼、快取、合併註解等修正）</li>
+    </ul>
+
+  </div>
+
+  <div class="post-detail-tags">
+    <a href="../posts.html?tag=工具" class="post-detail-tag">工具</a>
+    <a href="../posts.html?tag=技術" class="post-detail-tag">技術</a>
+    <a href="../posts.html?tag=Python" class="post-detail-tag">Python</a>
+  </div>
+
+  <div class="post-nav">
+    <a href="mas-activation-script.html">
+      <div class="nav-label">← 上一篇</div>
+      <div class="nav-title">Microsoft Activation Scripts 繁體中文版</div>
+    </a>
+    <div></div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Dickens 的生活雜記</h4>
+        <p>記錄生活中的點點滴滴</p>
+      </div>
+      <div class="footer-col">
+        <h4>快速連結</h4>
+        <ul>
+          <li><a href="../index.html">首頁</a></li>
+          <li><a href="../posts.html">所有文章</a></li>
+          <li><a href="../about.html">關於</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>主題分類</h4>
+        <ul>
+          <li><a href="../posts.html?tag=技術">技術</a></li>
+          <li><a href="../posts.html?tag=工具">工具</a></li>
+          <li><a href="../posts.html?tag=生活">生活</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Dickens &middot; 用 GitHub Pages 建立</p>
+    </div>
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="回到頂部">↑</button>
+
+<script src="../js/main.js"></script>
+<script>
+document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-TW', {year:'numeric', month:'long', day:'numeric'});
+</script>
+</body>
+</html>

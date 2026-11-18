@@ -22,5 +22,29 @@
     "tags": ["技術", "GitHub"],
     "excerpt": "記錄使用 dickens99.pp.ua 自訂域名的設定過程，包括 DNS 設定、HTTPS 憑證簽發等踩坑經驗。",
     "file": "posts/github-pages-custom-domain.html"
+  },
+  {
+    "id": "vpn-fix-tutorial",
+    "title": "Windows 內建 VPN 連不上？L2TP/IPsec 分段診斷與修復實錄",
+    "date": "2026-11-17",
+    "tags": ["技術", "Windows", "VPN"],
+    "excerpt": "Windows 內建 VPN（L2TP/IPsec + PSK）連不上的分段診斷與修復：兩個根因、四步修復流程、vpn-preflight/vpn-fix 工具腳本，與一次完整個案的排查方法論。",
+    "file": "posts/vpn-fix-tutorial.html"
+  },
+  {
+    "id": "mas-activation-script",
+    "title": "Microsoft Activation Scripts 繁體中文版",
+    "date": "2026-11-17",
+    "tags": ["工具", "Windows"],
+    "excerpt": "MAS 開源 Windows 與 Office 啟用工具（HWID、Ohook、TSforge、Online KMS）繁體中文版：PowerShell 一鍵啟用、傳統下載方式與上游同步機制。",
+    "file": "posts/mas-activation-script.html"
+  },
+  {
+    "id": "config-translator",
+    "title": "ConfigTranslator — 伺服器設定檔註解中文化工具",
+    "date": "2026-11-17",
+    "tags": ["工具", "技術", "Python"],
+    "excerpt": "把 php.ini 與 Apache httpd.conf 的英文註解自動翻譯成繁體中文：Gemini + gtx 雙引擎、翻譯快取、多金鑰輪替，CLI/GUI 雙介面。",
+    "file": "posts/config-translator.html"
   }
 ]

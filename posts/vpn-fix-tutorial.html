@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windows 內建 VPN 連不上？L2TP/IPsec 分段診斷與修復實錄 - Dickens 的生活雜記</title>
+<meta name="description" content="Windows 內建 VPN（L2TP/IPsec + PSK）連不上的分段診斷與修復工具，含完整排查方法論">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  /* Article-specific styles */
+  .art-highlight { background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent), color-mix(in srgb, var(--accent-pink) 10%, transparent)); border: 2px solid var(--accent-light); border-radius: var(--radius); padding: 16px 20px; margin: 20px 0; font-weight: 500; color: var(--text); line-height: 1.6; }
+
+  .art-table { width: 100%; border-collapse: collapse; margin: 16px 0; border-radius: var(--radius-sm); overflow: hidden; }
+  .art-table th, .art-table td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; font-size: 14px; vertical-align: top; }
+  .art-table th { background: var(--accent); color: #fff; font-weight: 600; white-space: nowrap; }
+  .art-table tr:nth-child(even) { background: var(--bg-secondary); }
+
+  .art-note { background: color-mix(in srgb, #f59e0b 8%, transparent); border-left: 4px solid #f59e0b; padding: 14px 18px; margin: 16px 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 15px; color: var(--text-secondary); }
+  .art-note.warn { background: color-mix(in srgb, #ef4444 8%, transparent); border-left-color: #ef4444; }
+  .art-note.info { background: color-mix(in srgb, var(--accent) 8%, transparent); border-left-color: var(--accent); }
+  .art-note.ok { background: color-mix(in srgb, #10b981 8%, transparent); border-left-color: #10b981; }
+
+  .art-step { display: flex; align-items: center; gap: 12px; margin: 32px 0 14px; }
+  .art-step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--bg-gradient); color: #fff; font-weight: 800; font-size: 16px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(124,92,255,0.3); }
+  .art-step h2 { font-size: 24px; font-weight: 800; color: var(--text); margin: 0; }
+
+  .art-console { background: #0d1117; color: #e6edf3; border-radius: var(--radius); padding: 18px 20px; margin: 16px 0; font-family: "SF Mono", "Fira Code", "Consolas", monospace; font-size: 14px; line-height: 1.7; overflow-x: auto; border: 1px solid #30363d; }
+  .art-console .cmt { color: #8b949e; }
+  .art-console .cmd { color: #7ee787; }
+  .art-console .out { color: #e6edf3; }
+  .art-console .warn { color: #ffa657; }
+
+  .art-bad-good { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .art-bad-good > div { border-radius: var(--radius-sm); padding: 16px; font-size: 14px; line-height: 1.6; }
+  .art-bad-good .bad { background: color-mix(in srgb, #ef4444 8%, transparent); border: 1px solid color-mix(in srgb, #ef4444 30%, transparent); }
+  .art-bad-good .good { background: color-mix(in srgb, #10b981 8%, transparent); border: 1px solid color-mix(in srgb, #10b981 30%, transparent); }
+  .art-bad-good .badge { font-size: 12px; font-weight: 700; display: inline-block; padding: 2px 10px; border-radius: 12px; margin-bottom: 8px; color: #fff; }
+  .art-bad-good .bad .badge { background: #ef4444; }
+  .art-bad-good .good .badge { background: #10b981; }
+
+  @media (max-width: 640px) {
+    .art-bad-good { grid-template-columns: 1fr; }
+    .art-table { font-size: 13px; }
+    .art-table th, .art-table td { padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="container">
+    <div class="top-bar-left">
+      <span>📅 <span id="currentDate"></span></span>
+    </div>
+    <div class="top-bar-right">
+      <a href="https://github.com/pkjoe88" target="_blank" class="social-icon" title="GitHub">GH</a>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="container">
+    <div class="header-main">
+      <nav class="nav">
+        <a href="../index.html" class="site-logo">
+          <div class="logo-icon">D</div>
+          <span class="site-title">Dickens</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="../index.html">首頁</a></li>
+          <li><a href="../posts.html">文章</a></li>
+          <li><a href="../about.html">關於</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="search-btn" onclick="window.location='../posts.html'" title="搜尋">🔍</button>
+          <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切換主題">🌙</button>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<!-- Post Header -->
+<div class="container" style="padding-top:32px;">
+  <div class="post-detail-header">
+    <span class="category-badge">技術</span>
+    <h1>Windows 內建 VPN 連不上？L2TP/IPsec 分段診斷與修復實錄</h1>
+    <div class="post-meta">
+      <div class="author">
+        <div class="author-avatar">D</div>
+        <span>Dickens</span>
+      </div>
+      <span>📅 2026-11-17</span>
+      <span>📖 12 分鐘閱讀</span>
+      <span>👁 89 次瀏覽</span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="post-detail-content">
+
+    <p><strong>症狀</strong>：輸入帳密後一直「正在連線」→ 點進去看變成「正在中斷連線」→ 最後 <code>Disconnected</code>。而同一組帳密在手機上（行動網路，不是同一個 WiFi）連得上。</p>
+
+    <div class="art-highlight">
+      💡 這是 Windows 內建 VPN（L2TP/IPsec + PSK）連不上問題的完整診斷與修復筆記，含工具腳本（<code>vpn-preflight.ps1</code> / <code>vpn-fix.ps1</code>）與一次完整個案的排查方法論。GitHub 原始碼：<a href="https://github.com/pkjoe88/vpn-fix" target="_blank">pkjoe88/vpn-fix</a>
+    </div>
+
+    <h2 style="padding-left:16px;">為什麼需要這個</h2>
+    <p>這個症狀最惱人的地方是：<strong>設定畫面看起來很正常</strong>。VPN 設定存在、帳密也輸入了、沒有任何錯誤訊息，但就是連不上。</p>
+    <p>而且「重灌系統」沒用——這點最容易被誤判成作業系統壞掉。重灌只是把設定重置回<strong>預設的錯法</strong>，PSK 和 NAT 穿透鍵都不會跟著回來。</p>
+
+    <!-- Root Causes -->
+    <div class="art-step">
+      <div class="art-step-num">🔍</div>
+      <h2>兩個根因</h2>
+    </div>
+
+    <table class="art-table">
+      <tr><th>#</th><th>根因</th><th>說明</th></tr>
+      <tr>
+        <td>1</td>
+        <td><strong>協定對不上</strong></td>
+        <td>遠端是 L2TP/IPsec + PSK，但電腦 <code>TunnelType=Automatic</code> 會先試<strong>不存在的 IKEv2</strong>；而 L2TP 格裡設的是憑證 + EAP，PSK 伺服器永遠驗不過</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><strong>缺 NAT 穿透鍵</strong></td>
+        <td>NAT 後方的 Windows 打 L2TP/IPsec 需要 <code>HKLM:\SYSTEM\CurrentControlSet\Services\PolicyAgent\AssumeUDPEncapsulationContextOnSendRule = 2</code>。新裝 OS 預設就沒有，重灌後消失就是這個原因</td>
+      </tr>
+    </table>
+
+    <!-- Usage Steps -->
+    <div class="art-step">
+      <div class="art-step-num">🛠</div>
+      <h2>用法：四步修復流程</h2>
+    </div>
+
+    <div class="art-note info">
+      ⚡ <strong>步驟 0 是整個流程最省時間的判斷</strong>，跳過它會浪費很多時間在錯誤的方向上。
+    </div>
+
+    <h3 style="color:var(--accent); margin:24px 0 10px;">步驟 0：先確認不是伺服器的問題（30 秒）</h3>
+    <p>拿手機用<strong>行動網路</strong>（不要用同一個 WiFi）連同一組帳號。</p>
+
+    <div class="art-bad-good">
+      <div class="good">
+        <span class="badge">✅ 手機能連</span>
+        <p>伺服器、帳號、PSK 全部沒問題，問題在這台電腦，繼續往下。</p>
+      </div>
+      <div class="bad">
+        <span class="badge">❌ 手機不能連</span>
+        <p>伺服器端或帳號的問題，<strong>不要動電腦設定</strong>。</p>
+      </div>
+    </div>
+
+    <h3 style="color:var(--accent); margin:24px 0 10px;">步驟 1：診斷（唯讀）</h3>
+    <div class="art-console">
+<span class="cmt"># 不帶參數：只看現況</span><br>
+<span class="cmd">.\vpn-preflight.ps1</span><br>
+<br>
+<span class="cmt"># 帶目標伺服器：判斷該改哪一筆 + 檢查協定參數</span><br>
+<span class="cmd">.\vpn-preflight.ps1 -Server 211.72.40.73</span>
+    </div>
+
+    <h3 style="color:var(--accent); margin:24px 0 10px;">步驟 2：修復</h3>
+    <div class="art-console">
+<span class="cmt"># 這台已經有該 VPN 的設定 -&gt; 修改它</span><br>
+<span class="cmd">.\vpn-fix.ps1 -Server 211.72.40.73 -Apply</span><br>
+<br>
+<span class="cmt"># 這台完全沒有 -&gt; 新增一筆</span><br>
+<span class="cmd">.\vpn-fix.ps1 -Server 211.72.40.73 -Name 'VPN' -PskFile C:\Temp\psk.txt -Apply</span>
+    </div>
+
+    <div class="art-note">
+      ⚠️ <strong>預設是 dry run</strong>，只印出「將要做什麼」不會動。加 <code>-Apply</code> 才真的執行。
+    </div>
+
+    <h3 style="color:var(--accent); margin:24px 0 10px;">步驟 3：重開機</h3>
+    <div class="art-note warn">
+      🔄 <strong>這步不做，前面全部白做。</strong>腳本不會自動重開。
+    </div>
+
+    <h3 style="color:var(--accent); margin:24px 0 10px;">步驟 4：複驗</h3>
+    <div class="art-console">
+<span class="cmd">.\vpn-preflight.ps1 -Server 211.72.40.73</span>
+    </div>
+
+    <!-- Scripts Division -->
+    <div class="art-step">
+      <div class="art-step-num">📦</div>
+      <h2>兩個腳本的分工</h2>
+    </div>
+
+    <table class="art-table">
+      <tr><th>腳本</th><th>會不會改東西</th><th>用途</th></tr>
+      <tr>
+        <td><code>vpn-preflight.ps1</code></td>
+        <td><strong>不會</strong>（純唯讀）</td>
+        <td>診斷現況、判斷該改哪一筆、列出差異</td>
+      </tr>
+      <tr>
+        <td><code>vpn-fix.ps1</code></td>
+        <td>只在 <code>-Apply</code> 時改，而且只改目標那一筆</td>
+        <td>執行修改或新增</td>
+      </tr>
+    </table>
+
+    <!-- Design Decisions -->
+    <div class="art-step">
+      <div class="art-step-num">🎯</div>
+      <h2>設計上的兩個關鍵決定</h2>
+    </div>
+
+    <h3 style="color:var(--accent); margin:24px 0 10px;">1. 用 <code>ServerAddress</code> 當鍵，不用「第一筆」</h3>
+    <p>VPN profile 的<strong>名稱可以任意、重複、無意義</strong>。同一台機器上有兩筆不同名稱的 profile 指向同一個伺服器，是完全合法的狀況。</p>
+    <p>反過來，<strong>名稱是唯一的</strong>（<code>Add-VpnConnection</code> 撞名會報 <code>WIN32 183</code>），但 <code>ServerAddress</code> 不唯一。</p>
+    <p>所以「找出該改哪一筆」只能用 <code>ServerAddress</code>。常見的 <code>Select-Object -First 1</code> 只在剛好只有一筆 profile 時才安全，換台機器就會改錯。</p>
+
+    <h3 style="color:var(--accent); margin:24px 0 10px;">2. 四種情境，沒有一種會碰到無關的 profile</h3>
+    <table class="art-table">
+      <tr><th>情況</th><th>動作</th></tr>
+      <tr><td>1 筆指向目標 IP</td><td>改它</td></tr>
+      <tr><td><strong>2 筆以上指向目標 IP</strong></td><td><strong>停下報錯</strong> 🛑</td></tr>
+      <tr><td>0 筆指向目標 IP，但名稱被占用</td><td><strong>停下報錯</strong> 🛑</td></tr>
+      <tr><td>0 筆指向目標 IP，名稱也沒被占用</td><td>新增</td></tr>
+    </table>
+
+    <div class="art-note warn">
+      🛑 第 2 種會刻意停下來：<strong>重複 profile 是真的會發生</strong>（用不同方式建過同一台伺服器）。挑錯一筆會改壞還在正常使用的那個，而且<strong>事後不會有感覺</strong>。寧可什麼都不做。
+    </div>
+
+    <!-- Pitfalls -->
+    <div class="art-step">
+      <div class="art-step-num">🕳</div>
+      <h2>已知陷阱（踩過的坑）</h2>
+    </div>
+
+    <h3 style="color:var(--accent); margin:24px 0 10px;"><code>Get-VpnConnection</code> 讀不回 PSK</h3>
+    <p>不要用 <code>$c.L2tpPsk</code> 判斷 PSK 有沒有設定——它幾乎都回空值。要確認請直接看：</p>
+    <div class="art-console"><span class="out">%AppData%\Microsoft\Network\Connections\Pbk\rasphone.pbk</span></div>
+
+    <h3 style="color:var(--accent); margin:24px 0 10px;"><code>Set-VpnConnection</code> 沒有 <code>-UserConnection</code> 參數</h3>
+    <p>只有 <code>-AllUserConnection</code>。所以 profile 有「全機層」和「使用者層」兩種，修改時<strong>必須沿用原本的層級</strong>，否則會報「找不到連線」——但 profile 明明存在，只是層級錯，錯誤訊息會誤導。</p>
+
+    <h3 style="color:var(--accent); margin:24px 0 10px;">scope 在建立時就定了，之後改不了</h3>
+    <p>要把使用者層改成全機層（或反過來），只能 <code>Remove-VpnConnection</code> 再 <code>Add-VpnConnection</code>。混合使用不會壞，但會造成「設定看得到、某個使用者連不上」的困惑情況。</p>
+
+    <h3 style="color:var(--accent); margin:24px 0 10px;">有些 profile 只存在於 <code>rasphone.pbk</code></h3>
+    <p>被第三方工具寫入的、或舊版建立的設定，<code>Get-VpnConnection</code> 看不到，指令也改不到。<code>vpn-preflight.ps1</code> 會交叉比對並列出來。</p>
+    <p><code>rasphone.pbk</code> 有兩個，依 scope 分開存放：</p>
+    <div class="art-console">
+<span class="cmt">全機層：</span><span class="out">C:\ProgramData\Microsoft\Network\Connections\Pbk\rasphone.pbk</span><br>
+<span class="cmt">使用者層：</span><span class="out">%AppData%\Microsoft\Network\Connections\Pbk\rasphone.pbk</span>
+    </div>
+    <div class="art-note warn">
+      ⚠️ 實測：本機的 profile 是全機層，只有 <code>C:\ProgramData</code> 那份存在，<code>%AppData%</code> 那份不存在。<strong>只看 AppData 會誤判為「沒有 profile」。</strong>
+    </div>
+
+    <h3 style="color:var(--accent); margin:24px 0 10px;">錯誤訊息是英文</h3>
+    <p><code>Add-VpnConnection</code> 撞名時回報 <code>This VPN connection has already been created.</code>（英文），即使系統是中文語系。這不是錯誤。</p>
+
+    <!-- Requirements -->
+    <div class="art-step">
+      <div class="art-step-num">⚙️</div>
+      <h2>執行環境需求</h2>
+    </div>
+
+    <ul>
+      <li>Windows 10 / 11（<code>Add-VpnConnection</code> 需要 Windows 8 以上）</li>
+      <li>PowerShell 5.1 以上</li>
+      <li><code>vpn-fix.ps1</code> 需要系統管理員權限；<code>vpn-preflight.ps1</code> 不需要</li>
+      <li>本專案的 <code>.ps1</code> 以 <strong>UTF-8 with BOM</strong> 儲存——PowerShell 5.1 讀無 BOM 的 UTF-8 會用系統 ANSI 碼頁解讀，中文會變亂碼並導致語法錯誤</li>
+    </ul>
+
+    <!-- Scope -->
+    <div class="art-step">
+      <div class="art-step-num">📐</div>
+      <h2>範圍界定</h2>
+    </div>
+
+    <p>本專案<strong>只</strong>處理 Windows 內建 VPN 的 profile 設定。</p>
+    <p><strong>不處理</strong>：防火牆規則、路由器／ISP 的 IPsec passthrough、VPN 伺服器端設定、第三方 VPN 軟體衝突。若換環境後仍連不上，再依下方附錄的出局順序逐項排除。</p>
+
+    <!-- Case Study -->
+    <div class="art-step">
+      <div class="art-step-num">📋</div>
+      <h2>附錄：原始個案排查（2026-09-29 結案）</h2>
+    </div>
+
+    <p>以下是當時的實際排查紀錄。<strong>八步出局順序完全不依賴特定機器</strong>，換環境後照順序走：</p>
+
+    <table class="art-table">
+      <tr><th>#</th><th>排查項目</th><th>結果</th></tr>
+      <tr><td>1</td><td><strong>伺服器沒死</strong></td><td>ping <code>60.249.133.148</code> 5ms 零遺失，TCP <code>1723</code>／<code>443</code> 有開</td></tr>
+      <tr><td>2</td><td><strong>看 RasClient log</strong></td><td><code>VpnStrategy=IKEv2,SSTP,PPTP then L2TP</code>，實際用 <code>WAN Miniport (IKEv2)</code> 去撥，通了又 <code>requires attention</code> 斷掉</td></tr>
+      <tr><td>3</td><td><strong>網卡無罪</strong></td><td>對閘道 20/20 零遺失平均 3ms</td></tr>
+      <tr><td>4</td><td><strong>本地路由器出局</strong></td><td><code>Features → Firewall → Advanced</code> 的 IPSec/PPTP 全開，無防火牆規則</td></tr>
+      <tr><td>5</td><td><strong>Windows 防火牆出局</strong></td><td>家用網屬私人/公用，兩個 profile 都是關的</td></tr>
+      <tr><td>6</td><td><strong>家裡固網出局</strong></td><td>手機開熱點給電腦撥，一樣掛</td></tr>
+      <tr><td>7</td><td><strong>遠端 Router 出局</strong></td><td>手機 L2TP 連得上，帳密＋伺服器正常</td></tr>
+      <tr><td>8</td><td><strong>剩下：電腦 VPN 設定＋NAT 穿透鍵</strong></td><td><code>PolicyAgent</code> 下無 <code>AssumeUDPEncapsulationContextOnSendRule</code> ← 真兇</td></tr>
+    </table>
+
+    <div class="art-note info">
+      📝 log 位置：<code>C:\Windows\System32\LogFiles\RasClient\</code>（連一次失敗的連線才會產生檔案）。
+    </div>
+
+    <h3 style="color:var(--accent); margin:24px 0 10px;">.reg 變通做法</h3>
+    <p>不想用指令、想走登錄編輯器時（<code>.reg</code> 編碼<strong>用 UTF-16 LE 或 ANSI，勿用 UTF-8</strong>）：</p>
+    <div class="art-console">
+<span class="out">Windows Registry Editor Version 5.00</span><br>
+<br>
+<span class="out">[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\PolicyAgent]</span><br>
+<span class="out">"AssumeUDPEncapsulationContextOnSendRule"=dword:00000002</span>
+    </div>
+
+    <h3 style="color:var(--accent); margin:24px 0 10px;">附帶：同場兩條無害 log</h3>
+    <p>排查時會看到、與 VPN 無關的雜訊，看到不用追：</p>
+    <ul>
+      <li><strong><code>WORKGROUP &lt;1D&gt;</code> 登錄失敗（NetBT 4321）</strong>— 區網上另一台機搶了主瀏覽器角色。不影響上網與 VPN</li>
+      <li><strong><code>DCOM {A463FCB9…} smartscreen.exe 0x80070002</code></strong>— SmartScreen 被設成 <code>Off</code> 之後，DCOM 照樣呼叫但叫不起來。故意關的就忽略</li>
+    </ul>
+
+    <!-- Lessons -->
+    <div class="art-step">
+      <div class="art-step-num">🎓</div>
+      <h2>教訓</h2>
+    </div>
+
+    <div class="art-highlight">
+      <ol style="text-align:left; line-height:2;">
+        <li><strong>手機同帳號能連 = 伺服器沒事</strong>——往電腦設定和中間 NAT 查，不要浪費時間重灌</li>
+        <li><strong>PSK 不要經 console 貼上</strong>——右鍵貼進 PowerShell 會被吃掉變成空字串。走暫存檔轉入，用完即刪</li>
+        <li><strong>重灌不是解法</strong>——只會把設定重置回預設的錯法</li>
+        <li><strong>設定畫面正常不代表協定對</strong>——<code>Automatic</code> 這種值在 UI 上看不出問題，只有讀 log 才會發現它先試了不存在的協定</li>
+      </ol>
+    </div>
+
+  </div>
+
+  <div class="post-detail-tags">
+    <a href="../posts.html?tag=技術" class="post-detail-tag">技術</a>
+    <a href="../posts.html?tag=Windows" class="post-detail-tag">Windows</a>
+    <a href="../posts.html?tag=VPN" class="post-detail-tag">VPN</a>
+  </div>
+
+  <div class="post-nav">
+    <a href="github-pages-custom-domain.html">
+      <div class="nav-label">← 上一篇</div>
+      <div class="nav-title">GitHub Pages 自訂域名設定心得</div>
+    </a>
+    <div></div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Dickens 的生活雜記</h4>
+        <p>記錄生活中的點點滴滴</p>
+      </div>
+      <div class="footer-col">
+        <h4>快速連結</h4>
+        <ul>
+          <li><a href="../index.html">首頁</a></li>
+          <li><a href="../posts.html">所有文章</a></li>
+          <li><a href="../about.html">關於</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>主題分類</h4>
+        <ul>
+          <li><a href="../posts.html?tag=技術">技術</a></li>
+          <li><a href="../posts.html?tag=生活">生活</a></li>
+          <li><a href="../posts.html?tag=網路">網路</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Dickens &middot; 用 GitHub Pages 建立</p>
+    </div>
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="回到頂部">↑</button>
+
+<script src="../js/main.js"></script>
+<script>
+document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-TW', {year:'numeric', month:'long', day:'numeric'});
+</script>
+</body>
+</html>

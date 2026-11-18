@@ -194,7 +194,7 @@ function renderSidebarRecent() {
   const container = document.getElementById('sidebarRecent');
   container.innerHTML = '';
   allPosts.slice(0, 5).forEach(post => {
-    const topicIcons = {'技術':'💻', '生活':'📝', '網路':'🌐', 'GitHub':'🐙', '公告':'📢'};
+    const topicIcons = {'技術':'💻', '生活':'📝', '網路':'🌐', 'GitHub':'🐙', '公告':'📢', '工具':'🔧', 'Windows':'🪟', 'VPN':'🔐', 'Python':'🐍'};
     container.innerHTML += `
       <div class="popular-post">
         <div class="thumb">${topicIcons[post.tags[0]] || '📄'}</div>
@@ -237,7 +237,7 @@ function renderPosts(posts) {
     return;
   }
   empty.style.display = 'none';
-  const topicIcons = {'技術':'💻', '生活':'📝', '網路':'🌐', 'GitHub':'🐙', '公告':'📢'};
+  const topicIcons = {'技術':'💻', '生活':'📝', '網路':'🌐', 'GitHub':'🐙', '公告':'📢', '工具':'🔧', 'Windows':'🪟', 'VPN':'🔐', 'Python':'🐍'};
   posts.forEach(post => {
     const item = document.createElement('div');
     item.className = 'post-list-item';

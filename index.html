@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Topics
       const tags = {};
       posts.forEach(p => p.tags.forEach(t => { tags[t] = (tags[t] || 0) + 1; }));
-      const topicIcons = {'技術':'💻', '生活':'📝', '網路':'🌐', 'GitHub':'🐙', '公告':'📢'};
+      const topicIcons = {'技術':'💻', '生活':'📝', '網路':'🌐', 'GitHub':'🐙', '公告':'📢', '工具':'🔧', 'Windows':'🪟', 'VPN':'🔐', 'Python':'🐍'};
       const topicsGrid = document.getElementById('topicsGrid');
       Object.entries(tags).forEach(([tag, count]) => {
         topicsGrid.innerHTML += `
