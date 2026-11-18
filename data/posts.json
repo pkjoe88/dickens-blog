@@ -46,5 +46,13 @@
     "tags": ["工具", "技術", "Python"],
     "excerpt": "把 php.ini 與 Apache httpd.conf 的英文註解自動翻譯成繁體中文：Gemini + gtx 雙引擎、翻譯快取、多金鑰輪替，CLI/GUI 雙介面。",
     "file": "posts/config-translator.html"
+  },
+  {
+    "id": "remote-reinstall-ubuntu",
+    "title": "沒有 IPMI、沒有序列埠：遠端重灌一台 Ubuntu 伺服器",
+    "date": "2026-11-18",
+    "tags": ["技術", "Linux", "伺服器"],
+    "excerpt": "只有 SSH、人不到現場，把沒有 IPMI 也沒有 serial console 的 Ubuntu 換成乾淨系統：kexec RAM 救援、離線縮 LVM、debootstrap 新 LV、一次性開機項，以及四個會讓你永久失聯的坑。",
+    "file": "posts/remote-reinstall-ubuntu.html"
   }
 ]
