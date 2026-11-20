@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
       "import { init } from 'https://unpkg.com/@waline/client@v3/dist/waline.js';\n" +
       "init({\n" +
       "  el: '#waline',\n" +
-      "  serverURL: 'https://waline-psi-tawny.vercel.app',\n" +
+      "  serverURL: 'https://waline.dickens99.pp.ua',\n" +
       "  requiredMeta: ['nick'],\n" +
       "  login: 'enable',\n" +
       "  dark: 'html[data-theme=\"dark\"]'\n" +
