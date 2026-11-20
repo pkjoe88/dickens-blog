@@ -1,0 +1,45 @@
+name: Rebuild Pagefind index
+
+# 有新文章（或文章頁、列表頁變動）時，自動重建 Pagefind 全文搜尋索引並提交。
+# 觸發條件：posts/**、data/posts.json、index.html、about.html、posts.html 有 push 到 main，
+# 或在 Actions 頁手動執行（workflow_dispatch）。
+# 索引本身只放在 pagefind/，提交訊息帶 [skip ci]，且提交內容不在觸發路徑內，不會無限循環。
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'posts/**'
+      - 'data/posts.json'
+      - 'index.html'
+      - 'about.html'
+      - 'posts.html'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Rebuild Pagefind index
+        run: |
+          rm -rf pagefind
+          npx --yes pagefind@1.6.0 --site . --exclude-selectors "header, footer, .top-bar, .post-nav"
+
+      - name: Commit updated index
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A pagefind
+          git diff --cached --quiet || git commit -m "Rebuild Pagefind index [skip ci]"
+          git push
