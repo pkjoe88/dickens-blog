@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const footer = document.querySelector('.footer-bottom');
     if (!footer || document.getElementById('siteCounter')) return;
 
-    const box = document.createElement('div');
+    var box = document.createElement('div');
     box.className = 'site-counter';
     box.id = 'siteCounter';
     box.style.display = 'none';
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
       '<span id="busuanzi_container_page_pv">本頁瀏覽 <b id="busuanzi_value_page_pv">–</b> 次</span>';
     footer.appendChild(box);
 
-    const script = document.createElement('script');
+    var script = document.createElement('script');
     script.async = true;
     script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
     document.head.appendChild(script);
@@ -96,5 +96,46 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('DOMContentLoaded', initCounter);
   } else {
     initCounter();
+  }
+})();
+
+// ===== Waline comments (anonymous, nickname only) =====
+// 只在文章頁（有 .post-detail-content）執行：在 post-nav 後面插入
+// 留言容器，再從 CDN 載入 Waline 用戶端。留言資料存在 Vercel +
+// Neon 後端，各篇文章用網址路徑區分。
+(function() {
+  function initWaline() {
+    if (!document.querySelector('.post-detail-content')) return;
+    var nav = document.querySelector('.post-nav');
+    if (!nav || document.getElementById('waline')) return;
+
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/@waline/client@v3/dist/waline.css';
+    document.head.appendChild(link);
+
+    var box = document.createElement('div');
+    box.id = 'waline';
+    box.style.marginTop = '48px';
+    nav.parentNode.insertBefore(box, nav.nextSibling);
+
+    var script = document.createElement('script');
+    script.type = 'module';
+    script.textContent =
+      "import { init } from 'https://unpkg.com/@waline/client@v3/dist/waline.js';\n" +
+      "init({\n" +
+      "  el: '#waline',\n" +
+      "  serverURL: 'https://waline-psi-tawny.vercel.app',\n" +
+      "  requiredMeta: ['nick'],\n" +
+      "  login: 'enable',\n" +
+      "  dark: 'html[data-theme=\"dark\"]'\n" +
+      "});";
+    document.body.appendChild(script);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initWaline);
+  } else {
+    initWaline();
   }
 })();
