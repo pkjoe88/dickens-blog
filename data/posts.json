@@ -54,5 +54,13 @@
     "tags": ["技術", "Linux", "伺服器"],
     "excerpt": "只有 SSH、人不到現場，把沒有 IPMI 也沒有 serial console 的 Ubuntu 換成乾淨系統：kexec RAM 救援、離線縮 LVM、debootstrap 新 LV、一次性開機項，以及四個會讓你永久失聯的坑。",
     "file": "posts/remote-reinstall-ubuntu.html"
+  },
+  {
+    "id": "remote-reinstall-ubuntu-part2",
+    "title": "沒有 IPMI、沒有序列埠（下）：四層自動退路，與一場沒人看的真機演練",
+    "date": "2026-11-20",
+    "tags": ["技術", "Linux", "伺服器"],
+    "excerpt": "接續上篇：真的把遠端 Ubuntu 換成新系統。離線縮 LVM、debootstrap 26.04、第一次開進新系統，然後用四層自動退路讓它在無 console 的條件下自己認輸——每一層都在真機重開演練過。",
+    "file": "posts/remote-reinstall-ubuntu-part2.html"
   }
 ]
