@@ -53,3 +53,48 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+// ===== Visitor counter (busuanzi) =====
+// 免註冊、JSONP、無 cookie。計數器資料由第三方服務提供；
+// 載入失敗時整塊移除，不會留下「–」這種半殘畫面。
+(function() {
+  function initCounter() {
+    const footer = document.querySelector('.footer-bottom');
+    if (!footer || document.getElementById('siteCounter')) return;
+
+    const box = document.createElement('div');
+    box.className = 'site-counter';
+    box.id = 'siteCounter';
+    box.style.display = 'none';
+    box.innerHTML =
+      '<span id="busuanzi_container_site_pv">本站總瀏覽 <b id="busuanzi_value_site_pv">–</b> 次</span>' +
+      '<span id="busuanzi_container_site_uv">訪客 <b id="busuanzi_value_site_uv">–</b> 人</span>' +
+      '<span id="busuanzi_container_page_pv">本頁瀏覽 <b id="busuanzi_value_page_pv">–</b> 次</span>';
+    footer.appendChild(box);
+
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
+    document.head.appendChild(script);
+
+    // 最多等 12 秒；拿到數字才顯示，拿不到就整塊收掉
+    let waited = 0;
+    const timer = setInterval(function() {
+      waited += 500;
+      const pv = document.getElementById('busuanzi_value_site_pv');
+      if (pv && pv.textContent && pv.textContent !== '–') {
+        box.style.display = 'flex';
+        clearInterval(timer);
+      } else if (waited >= 12000) {
+        clearInterval(timer);
+        if (box.parentNode) box.parentNode.removeChild(box);
+      }
+    }, 500);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCounter);
+  } else {
+    initCounter();
+  }
+})();

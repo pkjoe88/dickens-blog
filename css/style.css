@@ -1167,6 +1167,27 @@ img { max-width: 100%; height: auto; display: block; }
   color: var(--text-tertiary);
 }
 
+/* ===== Visitor counter (busuanzi) ===== */
+.site-counter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 20px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.site-counter span {
+  white-space: nowrap;
+}
+
+.site-counter b {
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ===== Back to Top ===== */
 .back-to-top {
   position: fixed;
