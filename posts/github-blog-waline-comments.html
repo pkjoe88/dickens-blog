@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Pages 靜態博客加上免費留言版：Waline 實作記錄 - Dickens 的生活雜記</title>
+<meta name="description" content="靜態博客想加留言版，又不想花錢、不想強迫讀者註冊帳號：用 Waline + Vercel + Neon 免費搭一個匿名留言版，含手機驗證卡關、資料庫缺表、綁自訂域名的完整踩坑記錄。">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="container">
+    <div class="top-bar-left">
+      <span>📅 <span id="currentDate"></span></span>
+    </div>
+    <div class="top-bar-right">
+      <a href="https://github.com/pkjoe88" target="_blank" class="social-icon" title="GitHub">GH</a>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="container">
+    <div class="header-main">
+      <nav class="nav">
+        <a href="../index.html" class="site-logo">
+          <div class="logo-icon">D</div>
+          <span class="site-title">Dickens</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="../index.html">首頁</a></li>
+          <li><a href="../posts.html">文章</a></li>
+          <li><a href="../about.html">關於</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="search-btn" onclick="window.location='../posts.html'" title="搜尋">🔍</button>
+          <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切換主題">🌙</button>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<!-- Post Header -->
+<div class="container" style="padding-top:32px;">
+  <div class="post-detail-header">
+    <span class="category-badge">技術</span>
+    <h1>GitHub Pages 靜態博客加上免費留言版：Waline 實作記錄</h1>
+    <div class="post-meta">
+      <div class="author">
+        <div class="author-avatar">D</div>
+        <span>Dickens</span>
+      </div>
+      <span>📅 2026-11-20</span>
+      <span>📖 8 分鐘閱讀</span>
+      <span>👁 1 次瀏覽</span>
+    </div>
+  </div>
+
+  <div class="post-detail-content">
+    <p>這個博客是純靜態站，放在 GitHub Pages 上，免費、穩定、不用管伺服器。但靜態站有個先天缺點：沒有後端，讀者看完文章想留句話，沒地方留。</p>
+    <p>今天把留言版接上去了。整套免費，讀者不用註冊 GitHub 帳號，填個暱稱就能留言，留言資料存在自己的資料庫，可以匯出。以下是完整做法跟踩到的坑。</p>
+
+    <h2>先說結論：架構長這樣</h2>
+    <p>留言系統拆成三件東西，全部免費：</p>
+    <ul>
+      <li><strong>留言後端 Waline</strong>：開源留言服務，跑在 Vercel 上（Hobby 免費方案）</li>
+      <li><strong>資料庫 Neon PostgreSQL</strong>：Vercel Storage 一鍵建立，免費 1GB、100 CU-hours，個人博客用不完</li>
+      <li><strong>前端</strong>：博客原本的 <code>js/main.js</code>，文章頁載入時自動注入留言框</li>
+    </ul>
+    <p>留言框長在每篇文章底部，管理後台在 <code>/ui</code>，第一個註冊的帳號就是管理員，可以審核、刪除留言。</p>
+
+    <h2>為什麼選 Waline</h2>
+    <p>先說被我打槍的選項：</p>
+    <ul>
+      <li><strong>Giscus</strong>：用 GitHub Discussions 當留言，缺點是讀者沒 GitHub 帳號就不能留言，直接出局。</li>
+      <li><strong>Utterances</strong>：一樣要 GitHub 帳號，同上。</li>
+      <li><strong>Cusdis</strong>：本來也是輕量匿名留言的首選，但 2026 年 7 月專案已停止維護，官方服務也掛了，不能用。</li>
+    </ul>
+    <p>Waline 剛好補上這幾個缺口：訪客只填暱稱就能匿名留言，也可以登入；有管理後台、垃圾過濾、表情、圖片上傳；資料在自己的資料庫，不怕服務商哪天收掉。</p>
+
+    <h2>第一步：部署 Waline 後端到 Vercel</h2>
+    <p>用 GitHub 帳號在 Vercel 建一個免費 Hobby 帳號，從 Waline 官方範例一鍵部署。注意兩件事：</p>
+    <ul>
+      <li>官方範例在 <code>walinejs/waline</code> 這個儲存庫的 <code>example</code> 目錄，不要用 <code>github.com/waline/waline</code>，那個網址不存在，會 404。</li>
+      <li>部署完先不要急著測留言。第一版部署是沒有資料庫的狀態，頁面會顯示「This page is unavailable」，正常。</li>
+    </ul>
+    <p>接著在 Vercel 專案的 Storage 建立 Neon PostgreSQL 資料庫，環境變數（<code>DATABASE_URL</code> 等）會自動注入專案，重新部署一次讓它生效。</p>
+
+    <h2>踩坑一：手機號只能綁一個 Vercel 帳號</h2>
+    <p>Vercel 新帳號要手機驗證，一支號碼只能綁一個帳號。我第一次不小心用另一個 GitHub 帳號建了 Vercel 帳號，號碼就被那邊綁走了，正確的帳號驗證時一直說號碼已被使用。</p>
+    <p>解法是把那個誤建的 Vercel 帳號刪掉：刪除要先收 Email 驗證碼、再點信裡的確認連結，刪完號碼才會釋放。如果你的號碼也被綁住，先去檢查是不是有舊帳號佔著。</p>
+
+    <h2>踩坑二：資料表不存在，重新部署也不會建表</h2>
+    <p>這是今天最花時間的坑。資料庫接上、重新部署後，留言框看起來正常，留言列表也是空的，看起來一切正常。但一註冊管理員，伺服器就報錯：</p>
+    <blockquote>500: relation "wl_users" does not exist</blockquote>
+    <p>查日誌確認：資料庫連線是通的，查詢都到得了 Neon（幾十毫秒），但 <code>wl_users</code>、<code>wl_comment</code> 這些表根本不存在，而且日誌裡完全沒有建表的動作。Waline 不會在啟動或重新部署時自己建表。</p>
+    <p>解法是直接進資料庫建表。官方有現成的 PostgreSQL 建表檔，在 <code>walinejs/waline</code> 的 <code>assets/waline.pgsql</code>，裡面是 <code>wl_comment</code>、<code>wl_counter</code>、<code>wl_users</code> 三張表加三個序號。到 Vercel 專案 Storage 的 Query 編輯器執行，<strong>要逐條執行</strong>：整份一次貼上會報 <code>cannot insert multiple commands into a prepared statement</code>。建完用這句驗證三張表都在：</p>
+    <pre><code>SELECT table_name FROM information_schema.tables
+WHERE table_name IN ('wl_users','wl_comment','wl_counter');</code></pre>
+    <p>表建好後再註冊管理員就一次成功，登入後台也正常。順帶一提：留言列表之前是空的，不是真的零留言，是根本讀不到資料——表不存在時讀留言一樣會報錯，只是前端沒顯示出來。</p>
+
+    <h2>第二步：前端接法，只改一支 main.js</h2>
+    <p>這個博客 9 篇文章頁共用同一支 <code>js/main.js</code>，所以留言框只要改這一支，就會出現在每篇文章下方，未來新文章也自動有，不用每篇改 HTML。</p>
+    <p>做法是在 <code>main.js</code> 尾巴加一段：只在文章頁（有 <code>.post-detail-content</code> 的頁面）執行，在 <code>.post-nav</code> 後面插入 <code>#waline</code> 容器，再從 CDN 載入 Waline 用戶端：</p>
+    <pre><code>(function() {
+  function initWaline() {
+    if (!document.querySelector('.post-detail-content')) return;
+    var nav = document.querySelector('.post-nav');
+    if (!nav || document.getElementById('waline')) return;
+
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/@waline/client@v3/dist/waline.css';
+    document.head.appendChild(link);
+
+    var box = document.createElement('div');
+    box.id = 'waline';
+    box.style.marginTop = '48px';
+    nav.parentNode.insertBefore(box, nav.nextSibling);
+
+    var script = document.createElement('script');
+    script.type = 'module';
+    script.textContent =
+      "import { init } from 'https://unpkg.com/@waline/client@v3/dist/waline.js';\n" +
+      "init({\n" +
+      "  el: '#waline',\n" +
+      "  serverURL: 'https://waline.dickens99.pp.ua',\n" +
+      "  requiredMeta: ['nick'],\n" +
+      "  login: 'enable',\n" +
+      "  dark: 'html[data-theme=\"dark\"]'\n" +
+      "});";
+    document.body.appendChild(script);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initWaline);
+  } else {
+    initWaline();
+  }
+})();</code></pre>
+    <p><code>requiredMeta: ['nick']</code> 的意思是必填的只有暱稱，信箱和網址可填可不填。<code>dark</code> 那行是讓留言框跟著博客的深色模式切換。如果以後想在某個單獨頁面手動加留言框，不用這段 JS，直接在 HTML 裡放 <code>&lt;div id="waline"&gt;&lt;/div&gt;</code> 再加上面那段 <code>init</code> 就行，放哪就顯示在哪。</p>
+
+    <h2>第三步（可選）：綁自訂域名</h2>
+    <p>Vercel 免費版就能綁自訂域名。我把留言服務綁到 <code>waline.dickens99.pp.ua</code>，管理後台也跟著變成 <code>https://waline.dickens99.pp.ua/ui</code>，比一串 <code>vercel.app</code> 好記。</p>
+    <p>做法兩步：先在 Vercel 專案設定 → Domains 加入域名，再去 DNS（我的在 Cloudflare）加一筆 CNAME。注意 Vercel 給的目標是專屬的，我這邊是 <code>ce759c238ab35e2a.vercel-dns-017.com.</code>，<strong>不是</strong>通用的 <code>cname.vercel-dns.com</code>，照 Vercel 頁面顯示的值填。DNS 生效後，記得把 <code>main.js</code> 裡的 <code>serverURL</code> 改成新域名再推一次，留言才會走新網址。</p>
+
+    <h2>成果與費用</h2>
+    <ul>
+      <li>每篇文章底部都有留言框，訪客填暱稱就能留言，不用註冊</li>
+      <li>管理後台可審核、刪除、匯出留言，資料在自己的 Neon 資料庫</li>
+      <li>全部免費：Vercel Hobby、Neon 免費額度，個人博客用不完</li>
+      <li>舊的 <code>vercel.app</code> 網址一樣能開，換域名不影響已有的留言</li>
+    </ul>
+    <p>最後補一個後台看到的小插曲：管理頁面會跳一個「LeanCloud 即將停止對外服務」的黃色提醒。那是給用 LeanCloud 存留言的人看的，LeanCloud 2027 年 1 月要關服務，我們用的是 Neon PostgreSQL，跟它沒關係，不用遷移、不用理它。</p>
+
+    <blockquote>「靜態站加留言，不用搬家，也不用花錢。」</blockquote>
+
+    <p>就這樣，留言版開張了。歡迎在下面留句話試試。</p>
+  </div>
+
+  <div class="post-detail-tags">
+    <a href="../posts.html?tag=技術" class="post-detail-tag">技術</a>
+    <a href="../posts.html?tag=GitHub" class="post-detail-tag">GitHub</a>
+  </div>
+
+  <div class="post-nav">
+    <a href="remote-reinstall-ubuntu-part3.html">
+      <div class="nav-label">← 上一篇</div>
+      <div class="nav-title">沒有 IPMI、沒有序列埠（下）：四層自動退路，與一場沒人看的真機演練</div>
+    </a>
+    <div></div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Dickens 的生活雜記</h4>
+        <p>記錄生活中的點點滴滴</p>
+      </div>
+      <div class="footer-col">
+        <h4>快速連結</h4>
+        <ul>
+          <li><a href="../index.html">首頁</a></li>
+          <li><a href="../posts.html">所有文章</a></li>
+          <li><a href="../about.html">關於</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>主題分類</h4>
+        <ul>
+          <li><a href="../posts.html?tag=技術">技術</a></li>
+          <li><a href="../posts.html?tag=生活">生活</a></li>
+          <li><a href="../posts.html?tag=網路">網路</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Dickens &middot; 用 GitHub Pages 建立</p>
+    </div>
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="回到頂部">↑</button>
+
+<script src="../js/main.js"></script>
+<script>
+document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-TW', {year:'numeric', month:'long', day:'numeric'});
+</script>
+</body>
+</html>

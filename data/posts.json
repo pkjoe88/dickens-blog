@@ -71,4 +71,13 @@
     "excerpt": "新系統能開，但沒有 console 的機器得先學會自己退回舊系統。四層退路——核心存在性守衛、2 次重試鏈、8 分鐘網路看門狗、關機清計數器——加上八次真機重開演練、三個最貴的坑與六條教訓。",
     "file": "posts/remote-reinstall-ubuntu-part3.html"
   }
+,
+  {
+    "id": "github-blog-waline-comments",
+    "title": "GitHub Pages 靜態博客加上免費留言版：Waline 實作記錄",
+    "date": "2026-11-20",
+    "tags": ["技術", "GitHub"],
+    "excerpt": "靜態博客想加留言，又不想花錢、不想強迫讀者註冊帳號：用 Waline + Vercel + Neon 免費搭一個匿名留言版，含手機驗證卡關、資料庫缺表、綁自訂域名的完整踩坑記錄。",
+    "file": "posts/github-blog-waline-comments.html"
+  }
 ]
