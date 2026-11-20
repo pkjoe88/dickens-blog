@@ -52,15 +52,23 @@
     "title": "沒有 IPMI、沒有序列埠：遠端重灌一台 Ubuntu 伺服器",
     "date": "2026-11-18",
     "tags": ["技術", "Linux", "伺服器"],
-    "excerpt": "只有 SSH、人不到現場，把沒有 IPMI 也沒有 serial console 的 Ubuntu 換成乾淨系統：kexec RAM 救援、離線縮 LVM、debootstrap 新 LV、一次性開機項，以及四個會讓你永久失聯的坑。",
+    "excerpt": "只有 SSH、人不到現場，把沒有 IPMI 也沒有 serial console 的 Ubuntu 換成乾淨系統。上篇：為什麼不能直接按重開、kexec 進 RAM 救援、磁碟計畫，以及四個會讓你永久失聯的坑。",
     "file": "posts/remote-reinstall-ubuntu.html"
   },
   {
     "id": "remote-reinstall-ubuntu-part2",
+    "title": "沒有 IPMI、沒有序列埠（中）：離線縮 LVM、debootstrap 26.04，31 秒開進新系統",
+    "date": "2026-11-19",
+    "tags": ["技術", "Linux", "伺服器"],
+    "excerpt": "真正動刀的部分：救援環境離線把 root 從 928G 縮到 60G、切 200G 新 LV、debootstrap 安裝 Ubuntu 26.04，再用一次性開機項開進新系統。含「SSH 斷線不等於指令停了」與 usermod 群組全有全無的坑。",
+    "file": "posts/remote-reinstall-ubuntu-part2.html"
+  },
+  {
+    "id": "remote-reinstall-ubuntu-part3",
     "title": "沒有 IPMI、沒有序列埠（下）：四層自動退路，與一場沒人看的真機演練",
     "date": "2026-11-20",
     "tags": ["技術", "Linux", "伺服器"],
-    "excerpt": "接續上篇：真的把遠端 Ubuntu 換成新系統。離線縮 LVM、debootstrap 26.04、第一次開進新系統，然後用四層自動退路讓它在無 console 的條件下自己認輸——每一層都在真機重開演練過。",
-    "file": "posts/remote-reinstall-ubuntu-part2.html"
+    "excerpt": "新系統能開，但沒有 console 的機器得先學會自己退回舊系統。四層退路——核心存在性守衛、2 次重試鏈、8 分鐘網路看門狗、關機清計數器——加上八次真機重開演練、三個最貴的坑與六條教訓。",
+    "file": "posts/remote-reinstall-ubuntu-part3.html"
   }
 ]

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>沒有 IPMI、沒有序列埠（下）：四層自動退路，與一場沒人看的真機演練 - Dickens 的生活雜記</title>
-<meta name="description" content="接續上篇：真的把遠端 Ubuntu 換成新系統。離線縮 LVM、debootstrap 26.04、第一次開進新系統，然後用四層自動退路讓它在無 console 的條件下自己認輸——每一層都在真機重開演練過。">
+<title>沒有 IPMI、沒有序列埠（中）：離線縮 LVM、debootstrap 26.04，31 秒開進新系統 - Dickens 的生活雜記</title>
+<meta name="description" content="接續上篇：真正動刀的部分。在救援環境離線把 root 從 928G 縮到 60G、切 200G 新 LV、debootstrap 安裝 Ubuntu 26.04，再用一次性開機項第一次開進新系統（31 秒）。">
 <link rel="stylesheet" href="../css/style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -89,25 +89,24 @@
 <div class="container" style="padding-top:32px;">
   <div class="post-detail-header">
     <span class="category-badge">技術</span>
-    <h1>沒有 IPMI、沒有序列埠（下）：四層自動退路，與一場沒人看的真機演練</h1>
+    <h1>沒有 IPMI、沒有序列埠（中）：離線縮 LVM、debootstrap 26.04，31 秒開進新系統</h1>
     <div class="post-meta">
       <div class="author">
         <div class="author-avatar">D</div>
         <span>Dickens</span>
       </div>
-      <span>📅 2026-11-20</span>
-      <span>📖 13 分鐘閱讀</span>
+      <span>📅 2026-11-19</span>
+      <span>📖 6 分鐘閱讀</span>
       <span>👁 1 次瀏覽</span>
     </div>
   </div>
 
   <!-- Content -->
   <div class="post-detail-content">
-
-    <p><strong>接續上篇</strong>：上篇寫到「Phase 0 準備完成，磁碟一個位元組都還沒動」。這篇是真正動刀的部分——離線縮 LVM、debootstrap 裝新系統、第一次開進新系統，然後最花時間的一步：<strong>讓它在開不起來的時候，自己退回舊系統</strong>。</p>
+    <p><strong>接續上篇</strong>：上篇寫到「Phase 0 準備完成，磁碟一個位元組都還沒動」。這篇開始動刀——離線把 root 從 928G 縮到 60G、切出 200G 的新 LV、用 <code>debootstrap</code> 裝一套 Ubuntu 26.04，最後用一次性開機項，第一次開進新系統。</p>
 
     <div class="art-highlight">
-      💡 上篇的結論是「沒有 console 的機器，系統要能自己復原」。這篇把它變成具體的四層機制，而且每一層都用真實重開演練過——不是推論、不是文件上寫應該可以。事後看，真正救命的是「<strong>演練</strong>」這個動作本身，因為四層裡有三層第一次跑都有問題。
+      💡 這一天真正要解的問題是「怎麼在不重開太多次的前提下，把一台正在運作的機器換掉」。答案是順序：先把空間讓出來 → 再裝新系統 → 最後才碰 GRUB。任一步顛倒，等於先把自己的退路拆了。
     </div>
 
     <!-- Phase 1 -->
@@ -212,141 +211,9 @@
       <tr><td>登入</td><td>用原本的帳號密碼走真 SSH 連上（不是 chroot 測試）</td></tr>
     </table>
 
-    <!-- Phase 4 -->
-    <div class="art-step">
-      <div class="art-step-num">4</div>
-      <h2>四層退路：讓它學會自己認輸</h2>
-    </div>
-
-    <p>新系統能開，但真正的問題現在才開始：<strong>我人在遠端，它如果哪天開不起來，誰來救？</strong>沒有 console，選單上的東西我永遠看不到。</p>
-
-    <p>所以「預設開新系統」這件事必須搭配自動退路。最後做成四層，各有各的觸發條件：</p>
-
-    <table class="art-table">
-      <tr><th>層</th><th>觸發條件</th><th>動作</th></tr>
-      <tr>
-        <td><strong>1. 核心存在性守衛</strong></td>
-        <td>新系統上的 <code>vmlinuz-7.0.0-15</code> 不見（例如被 <code>apt autoremove</code>）</td>
-        <td>改開 <code>7.0.0-43</code>；再不見就退回舊系統</td>
-      </tr>
-      <tr>
-        <td><strong>2. 重試鏈</strong></td>
-        <td>連續 2 次開機都沒能「證明自己活著」（例如核心 panic 一直重開）</td>
-        <td>第 3 次直接開舊系統</td>
-      </tr>
-      <tr>
-        <td><strong>3. 網路看門狗</strong></td>
-        <td>開起來了，但 8 分鐘內 ping 不到 gateway 或 22 埠沒開</td>
-        <td>把 GRUB 的 <code>next_entry</code> 指向舊系統 → <code>reboot -f</code></td>
-      </tr>
-      <tr>
-        <td><strong>4. 關機清計數器</strong></td>
-        <td>正常關機（不是 <code>reboot -f</code>）</td>
-        <td>清掉重試計數器，避免「短時間連續重開兩次」被誤判成開機失敗</td>
-      </tr>
-    </table>
-
-    <p>第 2 層的「計數器」是這套設計的核心，它把「開機成功」定義成一件<strong>可以被證明</strong>的事：開機 45 秒後，<code>ping</code> 得到 gateway <strong>而且</strong> 22 埠有在聽，才把 <code>sau_try1</code>、<code>sau_try2</code> 清掉。只要沒清，下一次開機 GRUB 就往上計數；滿兩次，第三次直接換人。</p>
-
-    <div class="art-console">
-<span class="cmt"># grubenv 的計數器長這樣（由 GRUB 自己在開機時寫入）</span>
-<span class="out">next_entry=</span>
-<span class="out">sau_try1=1</span>
-<span class="cmt"># ↑ 這次開機還沒被證明成功；45 秒後 boot-ok 成功才會清掉</span>
-</div>
-
-    <p>刻意保留的不對稱：<code>reboot -f</code>（看門狗用的）<strong>不清</strong>計數器，正常關機<strong>才清</strong>。前者代表「系統覺得自己不對勁」，後者代表「人為、有秩序地重開」。</p>
-
-    <div class="art-step">
-      <div class="art-step-num">⚠</div>
-      <h2>三個最貴的坑</h2>
-    </div>
-
-    <div class="art-note warn">
-      🔥 <strong>坑一：<code>set -u</code> 加上沒加引號的 heredoc，把 GRUB 設定寫成 0 bytes。</strong><br><br>
-      腳本裡用 heredoc 產生 <code>40_custom</code>，裡面有一個沒定義的變數。在 <code>set -u</code> 下展開失敗，<strong>檔案被寫成 0 bytes</strong>，而 <code>update-grub</code> 照樣回報成功（它只是「讀一個空檔」）。接著 <code>grub-reboot '某個標題'</code> 也照樣寫進了 <code>next_entry</code>——指向一個<strong>根本不存在</strong>的選單項目。<br><br>
-      如果這時候機器剛好重開，GRUB 找不到那個項目，就是「無 console 機器徹底失聯」。修法有兩個：heredoc 一律用 <code>&lt;&lt;'EOF'</code> 不做展開；以及<strong>寫 <code>next_entry</code> 之前一定要 <code>grep</code> 確認那個 menuentry 真的在 <code>grub.cfg</code> 裡</strong>。
-    </div>
-
-    <div class="art-note warn">
-      🔥 <strong>坑二：備份檔放在 <code>/etc/grub.d/</code> 裡，被當成設定執行。</strong><br><br>
-      改 <code>40_custom</code> 前先備份成 <code>40_custom.p4bak-…</code>，想說「同目錄很方便」。結果 <code>grub-mkconfig</code> 會執行該目錄下<strong>所有符合命名規則的檔案</strong>，備份被當成第二份設定，<code>grub.cfg</code> 就出現兩個同名項目。備份要放到目錄外。
-    </div>
-
-    <div class="art-note warn">
-      🔥 <strong>坑三：chroot 裡跑 <code>update-grub</code>，忘了把 <code>/boot</code> 分割區掛進去。</strong><br><br>
-      舊系統的 <code>/boot</code> 是獨立分割區。chroot 進去看到的是空目錄，<code>grub.cfg.new</code> 寫不進去、指令回 <code>rc≠0</code>。正確做法是 <code>mount /dev/nvme0n1p2 /mnt/old/boot</code>——掛在<strong>目標系統的 <code>/boot</code></strong>，不是另外一個掛載點。
-    </div>
-
-    <p>還有兩個比較小的：<code>grep 'set default='</code> 第一個命中其實是 GRUB 標頭裡處理 <code>next_entry</code> 的那行（驗證條件寫錯，會誤判成「沒改成功」）；以及兩個行程同時掛載／卸載同一個掛載點時，<code>grub-editenv</code> 會噴 <code>cannot open grubenv.new</code>——後來乾脆讓腳本<strong>永遠不卸載</strong>，只做「沒掛就掛」。</p>
-
-    <div class="art-step">
-      <div class="art-step-num">🧪</div>
-      <h2>然後是演練：八次真實重開</h2>
-    </div>
-
-    <p>機制寫完不等於有效。對一台沒有 console 的機器，「應該可以」跟「已經驗證」之間的差距，就是跑一趟現場。所以每一層都排了演練：</p>
-
-    <table class="art-table">
-      <tr><th>#</th><th>動作</th><th>預期</th><th>結果</th></tr>
-      <tr><td>A</td><td>正常重開</td><td>新系統，45 秒後計數器自動清</td><td>✅ 30 秒連上</td></tr>
-      <tr><td>B</td><td>手動填滿 <code>sau_try1/2</code> 再重開</td><td>舊系統</td><td>✅ 重試鏈生效</td></tr>
-      <tr><td>C</td><td>清空計數器再重開</td><td>回新系統</td><td>✅</td></tr>
-      <tr><td>D</td><td><code>next_entry=舊系統</code> 再重開</td><td>舊系統，且 GRUB 自動消費掉 <code>next_entry</code></td><td>✅</td></tr>
-      <tr><td>E</td><td>不設 <code>next_entry</code> 重開</td><td>新系統</td><td>✅</td></tr>
-      <tr><td>F</td><td>把守衛檢查的檔名改成不存在的版本</td><td>自動改開 43</td><td>✅ 順帶證明 43 也能開機</td></tr>
-      <tr><td>G</td><td>植入 <code>sau_try1=1</code> 後正常重開</td><td>仍進新系統（關機清理有效）</td><td>✅ <code>sau_try2</code> 沒被寫</td></tr>
-      <tr><td>H</td><td>開機 100 秒總檢</td><td><code>grubenv</code> 只剩 <code>next_entry=</code>、兩個 timer 都 active</td><td>✅ failed units 0</td></tr>
-    </table>
-
-    <div class="art-note ok">
-      ✅ 演練 F 是意外收穫：本來只是要驗證「核心不見時會不會換項目」，結果同時證明了 <code>7.0.0-43</code> 這顆從未開機過的核心<strong>也能正常開機</strong>。等於多了一條可用的備援路線。
-    </div>
-
-    <p>還有一個「不演練就會變成不定時炸彈」的地方：看門狗本身。網路正常時它應該什麼都不做——所以要<strong>手動觸發它</strong>，確認它真的不會誤重開（<code>Result=success</code>、<code>uptime</code> 持續增加）。沒測過的救援機制，跟沒有一樣。</p>
-
-    <!-- Monitoring -->
-    <div class="art-step">
-      <div class="art-step-num">📡</div>
-      <h2>觀察期：讓排程代替人盯著</h2>
-    </div>
-
-    <p>新系統上線後不該馬上刪舊系統，留 14 天觀察。但「記得每天檢查」是人最容易出錯的地方，所以做成排程：每天 09:30 用 SSH 做一次唯讀檢查，把結果推 LINE。</p>
-
-    <div class="art-console">
-<span class="out">SAU0 每日檢查　觀察期 3/14</span>
-<span class="out"></span>
-<span class="out">系統：新系統 NEW（newroot）</span>
-<span class="out">核心：7.0.0-15-generic</span>
-<span class="out">開機：2 天 3 小時</span>
-<span class="out">服務：failed 0｜SSH OK</span>
-<span class="out">磁碟：196G 已用 3.0G（2%）</span>
-<span class="out">GRUB：next_entry=</span>
-</div>
-
-    <p>幾個小設計：<strong>連不上也要回報</strong>（含連續失敗次數），否則最糟的情況是「它死了，而你以為它沒事」；<strong>推送失敗不推進「今天已報」的狀態</strong>，隔天才會重試；<strong>只做唯讀檢查</strong>，不做任何變更。</p>
-
-    <p>刻意<strong>不</strong>把「刪除舊系統」也做成排程。搬 <code>/boot</code>、<code>grub-install</code>、<code>lvremove</code> 這幾步在無 console 的機器上不可逆，一次無人操作失敗就再也進不去。期滿只發通知，實際動手留給一次有人盯著的 session。</p>
-
-    <!-- Lessons -->
-    <div class="art-step">
-      <div class="art-step-num">🎓</div>
-      <h2>這次的教訓</h2>
-    </div>
-
-    <div class="art-highlight">
-      <ol style="text-align:left; line-height:2;">
-        <li><strong>「指令回 0」不代表「事情做了」</strong>——<code>update-grub</code> 讀到空檔也回成功；<code>systemctl reboot</code> 權限不足只會回 <code>rc=1</code>，機器動都不動。要看結果，不要看 exit code</li>
-        <li><strong>連線中斷 ≠ 行程被殺</strong>——SSH 斷了，遠端的 <code>apt-get</code> 還活著。先確認，再決定要不要重跑</li>
-        <li><strong>退路要能「被證明」</strong>——把「開機成功」定義成「ping 得到 gateway 且 22 埠有聽」，計數器才有意義；用「我覺得它應該起來了」當成功條件，退路永遠不會啟動</li>
-        <li><strong>一次只驗一個變數</strong>——新系統配舊核心。兩個都新的話，失敗了不知道該懷疑誰</li>
-        <li><strong>沒有 console 的機器，最貴的坑都在「設定檔被寫壞」而不是「服務起不來」</strong>——服務掛了還能 SSH 進去看；<code>grub.cfg</code> 壞了，你連開機都到不了。所以新邏輯放在不會被覆蓋的 <code>custom.cfg</code>，每次改完都跑 <code>grub-script-check</code></li>
-        <li><strong>演練本身就是開發</strong>——四層裡有三層第一次跑有問題（競態、計數器時序、驗證條件），全部是演練時才現形</li>
-      </ol>
-    </div>
-
+    <!-- 待續 -->
     <div class="art-note info">
-      📝 目前狀態：新系統是預設、舊系統 60G 完整保留、每天 LINE 回報。等觀察期滿，才會做最後一步（新系統接手 GRUB、回收舊 LV）。在那之前，任何一次重開都會自動回到新系統；真的出事，四層退路會把它送回舊系統。
+      📝 <strong>待續</strong>：新系統開得起來，但還不能把它設成預設——沒有 console 的機器，必須先有「開不起來就自己退回去」的機制。那部分（四層退路與八次真機演練）寫在下一篇。
     </div>
 
   </div>
@@ -362,7 +229,10 @@
       <div class="nav-label">← 上一篇</div>
       <div class="nav-title">沒有 IPMI、沒有序列埠：遠端重灌一台 Ubuntu 伺服器</div>
     </a>
-    <div></div>
+    <a href="remote-reinstall-ubuntu-part3.html">
+      <div class="nav-label">下一篇 →</div>
+      <div class="nav-title">沒有 IPMI、沒有序列埠（下）：四層自動退路，與一場沒人看的真機演練</div>
+    </a>
   </div>
 </div>
 
