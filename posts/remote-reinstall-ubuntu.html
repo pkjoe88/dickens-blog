@@ -41,6 +41,12 @@
   .art-bad-good .bad .badge { background: #ef4444; }
   .art-bad-good .good .badge { background: #10b981; }
 
+  .art-series { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 10px; padding: 10px 14px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; }
+  .art-series .lbl { color: var(--text-tertiary); font-weight: 700; margin-right: 4px; }
+  .art-series a { color: var(--text-secondary); text-decoration: none; padding: 3px 10px; border-radius: 999px; border: 1px solid transparent; }
+  .art-series a:hover { border-color: var(--accent); color: var(--accent); }
+  .art-series a.current { background: var(--accent); color: #fff; font-weight: 700; }
+
   @media (max-width: 640px) {
     .art-bad-good { grid-template-columns: 1fr; }
     .art-table { font-size: 13px; }
@@ -99,6 +105,13 @@
       <span>📖 14 分鐘閱讀</span>
       <span>👁 1 次瀏覽</span>
     </div>
+  </div>
+
+  <div class="art-series">
+    <span class="lbl">本系列 3 篇</span>
+    <a href="remote-reinstall-ubuntu.html" class="current">上｜為什麼不能直接重開與 RAM 救援</a>
+    <a href="remote-reinstall-ubuntu-part2.html">中｜縮 LVM、debootstrap 與第一次開機</a>
+    <a href="remote-reinstall-ubuntu-part3.html">下｜四層退路與八次演練</a>
   </div>
 
   <!-- Content -->
