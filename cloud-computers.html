@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>雲電腦管理面板 - Dickens 的生活雜記</title>
+<meta name="description" content="免費雲電腦統一管理面板：Simular Box、InstaBox、Kaggle、Colab 等 9 台的狀態、配置與主控台連結">
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+.machine-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 4px; }
+.machine-head h3 { font-size: 18px; font-weight: 700; line-height: 1.35; }
+.machine-name { font-size: 13px; color: var(--text-tertiary); margin-bottom: 12px; word-break: break-all; }
+.machine-status { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+.machine-status.ok { background: rgba(34,197,94,0.15); color: #15803d; }
+.machine-status.pending { background: rgba(245,158,11,0.15); color: #b45309; }
+.machine-status.off { background: var(--bg-secondary); color: var(--text-tertiary); }
+[data-theme="dark"] .machine-status.ok { color: #4ade80; }
+[data-theme="dark"] .machine-status.pending { color: #fbbf24; }
+.machine-field { display: flex; gap: 8px; font-size: 14px; line-height: 1.6; margin-bottom: 6px; }
+.machine-field .k { color: var(--text-tertiary); flex-shrink: 0; width: 40px; }
+.machine-field .v { color: var(--text-secondary); word-break: break-word; }
+.console-btn { display: inline-block; background: var(--accent); color: #fff; padding: 8px 16px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; margin-top: 12px; transition: background 0.2s; }
+.console-btn:hover { background: var(--accent-hover); color: #fff; text-decoration: none; }
+.panel-note { text-align: center; color: var(--text-tertiary); font-size: 13px; margin: 32px 0 8px; }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="container">
+    <div class="top-bar-left">
+      <span>📅 <span id="currentDate"></span></span>
+    </div>
+    <div class="top-bar-right">
+      <a href="https://github.com/pkjoe88" target="_blank" class="social-icon" title="GitHub">GH</a>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="container">
+    <div class="header-main">
+      <nav class="nav">
+        <a href="index.html" class="site-logo">
+          <div class="logo-icon">D</div>
+          <span class="site-title">Dickens</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="index.html">首頁</a></li>
+          <li><a href="posts.html">文章</a></li>
+          <li><a href="about.html">關於</a></li>
+          <li><a href="cloud-computers.html" class="active">雲電腦</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="search-btn" onclick="window.location='posts.html'" title="搜尋">🔍</button>
+          <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切換主題">🌙</button>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero-section" style="padding:48px 0;">
+  <div class="container">
+    <div style="position:relative; z-index:1; color:#fff;">
+      <span class="category-badge" style="background:rgba(255,255,255,0.25);">☁️ 免費雲電腦</span>
+      <h1 style="font-size:32px; font-weight:900; margin:12px 0 8px;">雲電腦管理面板</h1>
+      <p style="opacity:0.9; margin:0;">9 台免費雲電腦，一頁看完狀態、配置與主控台連結。</p>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container">
+    <div class="post-grid">
+
+      <article class="post-card">
+        <div class="post-card-body">
+          <div class="machine-head">
+            <h3>Simular Box</h3>
+            <span class="machine-status ok">運行中</span>
+          </div>
+          <div class="machine-name">main · cb-6553565636ae</div>
+          <div class="machine-field"><span class="k">配置</span><span class="v">2 vCPU / 3.8 GiB RAM / 20GB 磁碟</span></div>
+          <div class="machine-field"><span class="k">額度</span><span class="v">餘額 4,957 credits（2026-11-20 查到）；一次性 5,000 credits，90 天到期</span></div>
+          <div class="machine-field"><span class="k">限制</span><span class="v">閑置 15 分鐘後休眠；連續睡 14 天會被刪除（含檔案），喚醒重設計數</span></div>
+          <div class="machine-field"><span class="k">狀態</span><span class="v">已設每日 09:00（台北時間）自動喚醒 1 小時，之後回睡（2026-11-20 設定）</span></div>
+          <div class="machine-field"><span class="k">帳號</span><span class="v">pkjoe05@gmail.com · Free · $0，Auto top-up Off</span></div>
+          <a class="console-btn" href="https://box.simular.ai/box/cb-6553565636ae" target="_blank">開啟主控台 →</a>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="post-card-body">
+          <div class="machine-head">
+            <h3>InstaBox</h3>
+            <span class="machine-status ok">運行中</span>
+          </div>
+          <div class="machine-name">free-machine · m_agq7ndm4d6w4sqefxwnmocfvzi</div>
+          <div class="machine-field"><span class="k">配置</span><span class="v">4 vCPU / 8 GiB RAM / 20GB 儲存</span></div>
+          <div class="machine-field"><span class="k">額度</span><span class="v">長期免費，無信用卡；免費工作區上限 1 台</span></div>
+          <div class="machine-field"><span class="k">限制</span><span class="v">免費版閒置 30 分鐘自動暫停（儀表板改不了）；連續跑滿 8 小時也會暫停；暫停不刪東西，1 秒恢復</span></div>
+          <div class="machine-field"><span class="k">狀態</span><span class="v">已設保活，每 30 分鐘續 activity lease（2026-11-20 設定，手動驗證租約成功）</span></div>
+          <div class="machine-field"><span class="k">帳號</span><span class="v">pkjoe05@gmail.com · Free</span></div>
+          <a class="console-btn" href="https://dashboard.instabox.sh/dashboard/machines?open=m_agq7ndm4d6w4sqefxwnmocfvzi" target="_blank">開啟主控台 →</a>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="post-card-body">
+          <div class="machine-head">
+            <h3>千問 Workbench</h3>
+            <span class="machine-status ok">已啟用</span>
+          </div>
+          <div class="machine-name">千問Go！雲端電腦 24h在線 · 未提供（平台不揭露主機編號）</div>
+          <div class="machine-field"><span class="k">配置</span><span class="v">未提供（平台安全策略攔截系統資訊查詢）</span></div>
+          <div class="machine-field"><span class="k">額度</span><span class="v">免費版；具體任務次數/時長未公布</span></div>
+          <div class="machine-field"><span class="k">限制</span><span class="v">雲端電腦選項預設開啟；無獨立主機管理頁；已實測跑任務 23 秒完成</span></div>
+          <div class="machine-field"><span class="k">狀態</span><span class="v">已啟用（2026-11-20 申請時快照）</span></div>
+          <div class="machine-field"><span class="k">帳號</span><span class="v">pkjoe05@gmail.com（帳號名 Qwen3233）· Free</span></div>
+          <a class="console-btn" href="https://qianwen.com/chat/workbench" target="_blank">開啟主控台 →</a>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="post-card-body">
+          <div class="machine-head">
+            <h3>華為云 AI DevSpace</h3>
+            <span class="machine-status off">未申請</span>
+          </div>
+          <div class="machine-name">（未申請）</div>
+          <div class="machine-field"><span class="k">限制</span><span class="v">無華為帳號、無 Google 登錄，已放棄申請</span></div>
+          <div class="machine-field"><span class="k">狀態</span><span class="v">未申請（2026-11-20）</span></div>
+          <div class="machine-field"><span class="k">帳號</span><span class="v">pkjoe05@gmail.com</span></div>
+          <a class="console-btn" href="https://developer.huaweicloud.com/devspace" target="_blank">開啟主控台 →</a>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="post-card-body">
+          <div class="machine-head">
+            <h3>Kaggle GPU</h3>
+            <span class="machine-status ok">可啟用</span>
+          </div>
+          <div class="machine-name">notebook377a12591c · 帳號編號 38070235</div>
+          <div class="machine-field"><span class="k">配置</span><span class="v">Notebook（Python 3）；GPU/TPU 尚未啟用</span></div>
+          <div class="machine-field"><span class="k">額度</span><span class="v">每週 GPU 30 小時、TPU 20 小時，目前皆 0 已用</span></div>
+          <div class="machine-field"><span class="k">限制</span><span class="v">GPU 已可啟用（T4 x2）；TPU 另需 Persona 身分驗證</span></div>
+          <div class="machine-field"><span class="k">狀態</span><span class="v">手機已驗證，GPU T4 x2 可啟用（未啟用，未耗額度，2026-11-20）</span></div>
+          <div class="machine-field"><span class="k">帳號</span><span class="v">pkjoe05@gmail.com（使用者名稱 pkjoe05）· Free</span></div>
+          <a class="console-btn" href="https://www.kaggle.com/code/pkjoe05/notebook377a12591c/edit" target="_blank">開啟主控台 →</a>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="post-card-body">
+          <div class="machine-head">
+            <h3>Google Colab</h3>
+            <span class="machine-status ok">運行中</span>
+          </div>
+          <div class="machine-name">Untitled0.ipynb · 161JdUQifcvZd5Qnp7XPJrO4fJ891bP3n</div>
+          <div class="machine-field"><span class="k">配置</span><span class="v">免費 T4 GPU、15GB 顯存（nvidia-smi 實測：Tesla T4、15360MiB、驅動 580.82.07、CUDA 13.0）</span></div>
+          <div class="machine-field"><span class="k">額度</span><span class="v">免費版，未買 Colab Pro</span></div>
+          <div class="machine-field"><span class="k">限制</span><span class="v">免費額度依 Google 動態分配</span></div>
+          <div class="machine-field"><span class="k">狀態</span><span class="v">T4 GPU 正常運作（2026-11-20 申請時快照）</span></div>
+          <div class="machine-field"><span class="k">帳號</span><span class="v">pkjoe05@gmail.com · Free</span></div>
+          <a class="console-btn" href="https://colab.research.google.com/drive/161JdUQifcvZd5Qnp7XPJrO4fJ891bP3n" target="_blank">開啟主控台 →</a>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="post-card-body">
+          <div class="machine-head">
+            <h3>Cloady</h3>
+            <span class="machine-status off">未申請</span>
+          </div>
+          <div class="machine-name">（未申請）</div>
+          <div class="machine-field"><span class="k">限制</span><span class="v">Cloudflare 人機驗證連續 5 次未通過，已放棄申請</span></div>
+          <div class="machine-field"><span class="k">狀態</span><span class="v">未申請（2026-11-20）</span></div>
+          <div class="machine-field"><span class="k">帳號</span><span class="v">pkjoe05@gmail.com</span></div>
+          <a class="console-btn" href="https://cloady.com" target="_blank">開啟主控台 →</a>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="post-card-body">
+          <div class="machine-head">
+            <h3>Serv00</h3>
+            <span class="machine-status pending">審核中</span>
+          </div>
+          <div class="machine-name">（待審核通過後指派）· pkjoe05（申請中）</div>
+          <div class="machine-field"><span class="k">配置</span><span class="v">3GB SSD / 512MB RAM，SSH，FreeBSD</span></div>
+          <div class="machine-field"><span class="k">額度</span><span class="v">免費，無信用卡</span></div>
+          <div class="machine-field"><span class="k">限制</span><span class="v">90 天未登入（面板或 SSH）帳號會被刪除；每台伺服器上限 10,000 帳號</span></div>
+          <div class="machine-field"><span class="k">狀態</span><span class="v">申請已送出，待人工審核（數小時至 72 小時，2026-11-20 申請）</span></div>
+          <div class="machine-field"><span class="k">帳號</span><span class="v">pkjoe05@gmail.com · Free</span></div>
+          <a class="console-btn" href="https://www.serv00.com/" target="_blank">開啟主控台 →</a>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="post-card-body">
+          <div class="machine-head">
+            <h3>GitHub Codespaces</h3>
+            <span class="machine-status ok">使用中</span>
+          </div>
+          <div class="machine-name">ominous space doodle · ominous-space-doodle-vprxwwrgj7wqhx776</div>
+          <div class="machine-field"><span class="k">配置</span><span class="v">2-core / 8GB RAM / 32GB，Blank 範本</span></div>
+          <div class="machine-field"><span class="k">額度</span><span class="v">每月免費 120 core-hours（2-core 可用 60 小時），15GB 儲存</span></div>
+          <div class="machine-field"><span class="k">限制</span><span class="v">閒置超時自動停止（預設閒置逾時已設為 240 分鐘最大值）；單次最長 12 小時；停止後檔案保留</span></div>
+          <div class="machine-field"><span class="k">狀態</span><span class="v">Active（2026-11-20 建立；預設閒置逾時 240 分鐘已設定）</span></div>
+          <div class="machine-field"><span class="k">帳號</span><span class="v">pkjoe05-hub（GitHub，Google pkjoe05@gmail.com 登入）· Free</span></div>
+          <a class="console-btn" href="https://ominous-space-doodle-vprxwwrgj7wqhx776.github.dev/" target="_blank">開啟主控台 →</a>
+        </div>
+      </article>
+
+    </div>
+    <p class="panel-note">狀態為 2026-11-20 申請時的快照，非即時資訊。主控台連結需登入對應帳號才能開啟。</p>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Dickens 的生活雜記</h4>
+        <p>記錄生活中的點點滴滴</p>
+      </div>
+      <div class="footer-col">
+        <h4>快速連結</h4>
+        <ul>
+          <li><a href="index.html">首頁</a></li>
+          <li><a href="posts.html">所有文章</a></li>
+          <li><a href="about.html">關於</a></li>
+          <li><a href="cloud-computers.html">雲電腦</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>主題分類</h4>
+        <ul>
+          <li><a href="posts.html?tag=技術">技術</a></li>
+          <li><a href="posts.html?tag=生活">生活</a></li>
+          <li><a href="posts.html?tag=網路">網路</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Dickens &middot; 用 GitHub Pages 建立</p>
+    </div>
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="回到頂部">↑</button>
+
+<script src="js/main.js"></script>
+<script>
+document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-TW', {year:'numeric', month:'long', day:'numeric'});
+</script>
+</body>
+</html>
