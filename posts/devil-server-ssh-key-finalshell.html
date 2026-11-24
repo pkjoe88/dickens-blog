@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>家裡 Linux 主機 devil-server 改用金鑰登入：FinalShell 設定記錄 - Dickens 的生活雜記</title>
-<meta name="description" content="家裡 Linux 主機對外開了 SSH，密碼登不進去，一查是 sshd 只接受金鑰；加上對外 port 天天被機器人掃，乾脆改用金鑰登入。FinalShell 吃 PEM 格式，記錄產生 RSA 金鑰、部署公鑰、設定連線的完整過程；圖形桌面則用 RustDesk 連 Xfce。">
+<meta name="description" content="事情從 Muse 連不進家裡的 Linux 主機開始：遠端桌面它進不去，出站 22 port 又被擋，改走 Tailscale 加專用金鑰打通 SSH；下午 FinalShell 密碼登不進去，一查是 sshd 只接受金鑰，改用 RSA 金鑰登入，圖形桌面用 RustDesk。">
 <link rel="stylesheet" href="../css/style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,13 +59,30 @@
         <span>Dickens</span>
       </div>
       <span>📅 2026-11-24</span>
-      <span>📖 6 分鐘閱讀</span>
+      <span>📖 8 分鐘閱讀</span>
       <span>👁 1 次瀏覽</span>
     </div>
   </div>
 
   <div class="post-detail-content">
-    <p>家裡有一台 Linux 主機 devil-server（Ubuntu），HiNet 固定 IP，路由器把對外 2222 port 轉到主機的 22，平常在 Windows 上用 FinalShell 連進去。今天想用密碼登入，怎麼打都不進去，一查才發現問題不在密碼，在伺服器根本不接受密碼登入。最後改成金鑰登入，一次搞定。以下是完整過程。</p>
+    <p>家裡有一台 Linux 主機 devil-server（Ubuntu），HiNet 固定 IP 220.133.97.112，路由器把對外 2222 port 轉到主機的 22。平常在 Windows 上用 FinalShell 連進去。今天一整天都在搞這台的連線：上午是讓 Muse 直接連進來，下午是 FinalShell 改用金鑰登入，圖形桌面則用 RustDesk。以下是完整過程，沒有前面，就沒有後面。</p>
+
+    <h2>起點：Muse 連不進這台機器</h2>
+    <p>事情是這樣開始的：我想讓 Muse 直接讀這台主機上的檔案，不用每次都走 GitHub 繞路。但 Muse 說它沒有遠端桌面的客戶端，RustDesk 的連線它進不去，也看不到畫面。</p>
+    <p>可行的路是在主機上加一組 Muse 專用的公鑰。私鑰絕對不能貼到聊天室，要給也只給公鑰。</p>
+    <p>不過還有一關：Muse 那邊的 VM 出站 22 port 被代理擋住，SSH 直連固定 IP 會被重置，連不上。改走 Tailscale 才行。</p>
+
+    <h2>打通：Tailscale + 專用金鑰</h2>
+    <p>主機上裝 Tailscale：</p>
+    <pre><code>curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up</code></pre>
+    <p>用 pkjoe05@gmail.com 登入。主機自己的瀏覽器打不開登入連結，改在別台裝置上開連結登入，成功，devil-server 進了同一個 tailnet。Muse 那邊也加入同一個 tailnet，裝置名 muse。</p>
+    <p>接著 Muse 在它的 VM 上生了一組 ed25519 專用金鑰，我用遠端桌面開終端機，把公鑰加進主機的 <code>~/.ssh/authorized_keys</code>。私鑰只留在 Muse 的 VM 上，不外流。金鑰指紋：</p>
+    <pre><code>SHA256:C2WCdWxNsj8sWRiUXvn7Ww2OEDclx5xvUDbJANDhp1Y</code></pre>
+    <p>驗證：SSH 經 Tailscale 通了，<code>whoami</code> 是 devil，<code>hostname</code> 是 devil-server。</p>
+    <p>順帶兩個設定：devil 的 sudo 免密碼；我用 <code>sudo passwd devil</code> 設了 devil 的密碼。我自己從 Windows PowerShell 連有兩種走法：<code>ssh devil@100.72.240.24</code>（走 Tailscale）或 <code>ssh -p 2222 devil@220.133.97.112</code>（走路由器 port forward，不用 Tailscale）。</p>
+
+    <p>上午把 Muse 的連線打通之後，下午換 FinalShell 要連，密碼怎麼打都不進去，才發現問題不在密碼。</p>
 
     <h2>先查原因：sshd 只接受金鑰</h2>
     <p>在主機上看 sshd 的有效設定：</p>

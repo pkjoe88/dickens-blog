@@ -85,7 +85,7 @@
     "title": "家裡 Linux 主機 devil-server 改用金鑰登入：FinalShell 設定記錄",
     "date": "2026-11-24",
     "tags": ["技術", "Linux", "伺服器"],
-    "excerpt": "家裡 Linux 主機對外開了 SSH，密碼登不進去，一查是 sshd 只接受金鑰；加上對外 port 天天被機器人掃，乾脆改用金鑰登入。FinalShell 吃 PEM 格式，記錄產生 RSA 金鑰、部署公鑰、設定連線的完整過程；圖形桌面則用 RustDesk 連 Xfce。",
+    "excerpt": "事情從 Muse 連不進家裡的 Linux 主機開始：遠端桌面它進不去，出站 22 port 又被擋，改走 Tailscale 加專用金鑰打通 SSH；下午 FinalShell 密碼登不進去，一查是 sshd 只接受金鑰，改用 RSA 金鑰登入，圖形桌面用 RustDesk。",
     "file": "posts/devil-server-ssh-key-finalshell.html"
   }
 ]
