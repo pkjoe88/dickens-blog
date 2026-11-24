@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家裡 Linux 主機 devil-server 改用金鑰登入：FinalShell 設定記錄 - Dickens 的生活雜記</title>
+<meta name="description" content="家裡 Linux 主機對外開了 SSH，密碼登不進去，一查是 sshd 只接受金鑰；加上對外 port 天天被機器人掃，乾脆改用金鑰登入。FinalShell 吃 PEM 格式，記錄產生 RSA 金鑰、部署公鑰、設定連線的完整過程。">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="container">
+    <div class="top-bar-left">
+      <span>📅 <span id="currentDate"></span></span>
+    </div>
+    <div class="top-bar-right">
+      <a href="https://github.com/pkjoe88" target="_blank" class="social-icon" title="GitHub">GH</a>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="container">
+    <div class="header-main">
+      <nav class="nav">
+        <a href="../index.html" class="site-logo">
+          <div class="logo-icon">D</div>
+          <span class="site-title">Dickens</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="../index.html">首頁</a></li>
+          <li><a href="../posts.html">文章</a></li>
+          <li><a href="../about.html">關於</a></li>
+          <li><a href="../cloud-computers.html">雲電腦</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="search-btn" onclick="window.location='../posts.html'" title="搜尋">🔍</button>
+          <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切換主題">🌙</button>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<!-- Post Header -->
+<div class="container" style="padding-top:32px;">
+  <div class="post-detail-header">
+    <span class="category-badge">技術</span>
+    <h1>家裡 Linux 主機 devil-server 改用金鑰登入：FinalShell 設定記錄</h1>
+    <div class="post-meta">
+      <div class="author">
+        <div class="author-avatar">D</div>
+        <span>Dickens</span>
+      </div>
+      <span>📅 2026-11-24</span>
+      <span>📖 5 分鐘閱讀</span>
+      <span>👁 1 次瀏覽</span>
+    </div>
+  </div>
+
+  <div class="post-detail-content">
+    <p>家裡有一台 Linux 主機 devil-server（Ubuntu），HiNet 固定 IP，路由器把對外 2222 port 轉到主機的 22，平常在 Windows 上用 FinalShell 連進去。今天想用密碼登入，怎麼打都不進去，一查才發現問題不在密碼，在伺服器根本不接受密碼登入。最後改成金鑰登入，一次搞定。以下是完整過程。</p>
+
+    <h2>先查原因：sshd 只接受金鑰</h2>
+    <p>在主機上看 sshd 的有效設定：</p>
+    <pre><code>sudo sshd -T | grep -iE "passwordauthentication|pubkeyauthentication|kbdinteractiveauthentication"</code></pre>
+    <pre><code>pubkeyauthentication yes
+passwordauthentication no
+kbdinteractiveauthentication no</code></pre>
+    <p>密碼認證是關的，鍵盤互動認證也是關的，只有公鑰認證是開的。所以密碼再怎麼正確都登不進去，這台本來就是只吃金鑰。</p>
+
+    <h2>為什麼不直接把密碼登入打開</h2>
+    <p>有兩個選擇：打開密碼登入，或改用金鑰。我選了金鑰，因為 <code>/var/log/auth.log</code> 裡看得到，外面的機器人天天在掃這台的 2222 port，試各種不存在的使用者名稱、對 <code>devil</code> 暴力猜密碼。密碼登入一開，就等於開門讓人慢慢猜；金鑰登入沒有密碼可以猜，安全得多。</p>
+
+    <h2>第一步：在 Windows 上產生金鑰</h2>
+    <p>FinalShell 吃 PEM 格式的私鑰，所以產生時要加 <code>-m PEM</code>，用 RSA 4096。打開 PowerShell：</p>
+    <pre><code>ssh-keygen -m PEM -t rsa -b 4096 -f $env:USERPROFILE\.ssh\id_rsa_finalshell -C "devil-pc-finalshell"</code></pre>
+    <p>跳出問密碼時直接按兩次 Enter（留空）。會產生兩個檔案：</p>
+    <ul>
+      <li><code>C:\Users\DeViL\.ssh\id_rsa_finalshell</code>：私鑰，<strong>絕對不要外流、不要貼給別人</strong></li>
+      <li><code>C:\Users\DeViL\.ssh\id_rsa_finalshell.pub</code>：公鑰，要放到伺服器上的那一個</li>
+    </ul>
+    <p>用另外取檔名的方式產生，電腦上原本就有的 <code>id_ed25519</code> 不會被動到。</p>
+
+    <h2>第二步：把公鑰放進伺服器</h2>
+    <p>先印出公鑰內容：</p>
+    <pre><code>type $env:USERPROFILE\.ssh\id_rsa_finalshell.pub</code></pre>
+    <p>把印出來那整行（開頭是 <code>ssh-rsa AAAA...</code>）追加進伺服器上 <code>devil</code> 帳號的 <code>~/.ssh/authorized_keys</code>，再把權限設好：</p>
+    <pre><code>cat &gt;&gt; ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys</code></pre>
+    <p>驗證一下，<code>ssh-keygen -lf ~/.ssh/authorized_keys</code> 應該列出三把金鑰，新的那把是 RSA 4096：</p>
+    <pre><code>256 SHA256:sVEWviEe... opencode-from-228 (ED25519)
+256 SHA256:C2WCdWxN... muse-home-linux (ED25519)
+4096 SHA256:pIPQmcia9gEx0fVvF2y0CXx9BhLoBFl4tnby4nkzh7k devil-pc-finalshell (RSA)</code></pre>
+    <p>順帶一提，<code>.ssh</code> 目錄權限要是 700，<code>authorized_keys</code> 是 600，權限不對 sshd 會直接忽略整個檔案，連不上時先檢查這個。</p>
+
+    <h2>第三步：FinalShell 設定連線</h2>
+    <ul>
+      <li>左上角資料夾圖示 → 新增 → SSH 連接 (Linux)</li>
+      <li>名稱隨便填，主機填固定 IP <code>220.133.97.112</code>，端口填 <code>2222</code></li>
+      <li>方法選「公鑰」，用戶名填 <code>devil</code></li>
+      <li>點「瀏覽」→「導入」→ 名稱隨便填，私鑰選 <code>C:\Users\DeViL\.ssh\id_rsa_finalshell</code>，私鑰密碼留空 → 確定</li>
+      <li>點一下選取剛導入的金鑰（背景變淺藍）→ 確定，儲存</li>
+    </ul>
+    <p>雙擊連線，不會再問密碼，直接進終端機。</p>
+
+    <h2>驗證</h2>
+    <p>也可以先在 PowerShell 快速測，不用開 FinalShell：</p>
+    <pre><code>ssh -i $env:USERPROFILE\.ssh\id_rsa_finalshell -p 2222 devil@220.133.97.112</code></pre>
+    <p>能直接進去就代表金鑰沒問題，FinalShell 那邊照上面設一定通。</p>
+
+    <blockquote>「對外開著的 SSH，沒有密碼可以猜，才是最安全的。」</blockquote>
+  </div>
+
+  <div class="post-detail-tags">
+    <a href="../posts.html?tag=技術" class="post-detail-tag">技術</a>
+    <a href="../posts.html?tag=Linux" class="post-detail-tag">Linux</a>
+    <a href="../posts.html?tag=伺服器" class="post-detail-tag">伺服器</a>
+  </div>
+
+  <div class="post-nav">
+    <a href="github-blog-waline-comments.html">
+      <div class="nav-label">← 上一篇</div>
+      <div class="nav-title">GitHub Pages 靜態博客加上免費留言版：Waline 實作記錄</div>
+    </a>
+    <div></div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Dickens 的生活雜記</h4>
+        <p>記錄生活中的點點滴滴</p>
+      </div>
+      <div class="footer-col">
+        <h4>快速連結</h4>
+        <ul>
+          <li><a href="../index.html">首頁</a></li>
+          <li><a href="../posts.html">所有文章</a></li>
+          <li><a href="../about.html">關於</a></li>
+          <li><a href="../cloud-computers.html">雲電腦</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>主題分類</h4>
+        <ul>
+          <li><a href="../posts.html?tag=技術">技術</a></li>
+          <li><a href="../posts.html?tag=生活">生活</a></li>
+          <li><a href="../posts.html?tag=網路">網路</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Dickens &middot; 用 GitHub Pages 建立</p>
+    </div>
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="回到頂部">↑</button>
+
+<script src="../js/main.js"></script>
+<script>
+document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-TW', {year:'numeric', month:'long', day:'numeric'});
+</script>
+</body>
+</html>
