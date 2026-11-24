@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>家裡 Linux 主機 devil-server 改用金鑰登入：FinalShell 設定記錄 - Dickens 的生活雜記</title>
-<meta name="description" content="家裡 Linux 主機對外開了 SSH，密碼登不進去，一查是 sshd 只接受金鑰；加上對外 port 天天被機器人掃，乾脆改用金鑰登入。FinalShell 吃 PEM 格式，記錄產生 RSA 金鑰、部署公鑰、設定連線的完整過程。">
+<meta name="description" content="家裡 Linux 主機對外開了 SSH，密碼登不進去，一查是 sshd 只接受金鑰；加上對外 port 天天被機器人掃，乾脆改用金鑰登入。FinalShell 吃 PEM 格式，記錄產生 RSA 金鑰、部署公鑰、設定連線的完整過程；圖形桌面則用 RustDesk 連 Xfce。">
 <link rel="stylesheet" href="../css/style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,7 +59,7 @@
         <span>Dickens</span>
       </div>
       <span>📅 2026-11-24</span>
-      <span>📖 5 分鐘閱讀</span>
+      <span>📖 6 分鐘閱讀</span>
       <span>👁 1 次瀏覽</span>
     </div>
   </div>
@@ -114,6 +114,10 @@ chmod 600 ~/.ssh/authorized_keys</code></pre>
     <p>也可以先在 PowerShell 快速測，不用開 FinalShell：</p>
     <pre><code>ssh -i $env:USERPROFILE\.ssh\id_rsa_finalshell -p 2222 devil@220.133.97.112</code></pre>
     <p>能直接進去就代表金鑰沒問題，FinalShell 那邊照上面設一定通。</p>
+
+    <h2>圖形桌面：RustDesk</h2>
+    <p>上面是命令列的連法，圖形桌面則用 RustDesk。devil-server 上裝了 RustDesk 1.5.3，服務在跑（<code>--service</code> 加 <code>--server</code>），開 21118 port，桌面是 Xfce。Windows 上裝 RustDesk 客戶端，輸入這台的 ID 就能連進桌面操作。</p>
+    <p>走的是 RustDesk 官方的公開中繼伺服器（rs-ny.rustdesk.com），沒自架。分工很簡單：要打指令用 SSH（FinalShell + 金鑰），要看畫面、點滑鼠用 RustDesk，兩個搭配著用。</p>
 
     <blockquote>「對外開著的 SSH，沒有密碼可以猜，才是最安全的。」</blockquote>
   </div>
