@@ -87,5 +87,13 @@
     "tags": ["技術", "Linux", "伺服器"],
     "excerpt": "事情從 Muse 連不進家裡的 Linux 主機開始：遠端桌面它進不去，出站 22 port 又被擋，改走 Tailscale 加專用金鑰打通 SSH；下午 FinalShell 密碼登不進去，一查是 sshd 只接受金鑰，改用 RSA 金鑰登入，圖形桌面用 RustDesk。",
     "file": "posts/devil-server-ssh-key-finalshell.html"
+  },
+  {
+    "id": "devil-server-upgrade-ubuntu-2604",
+    "title": "devil-server 從 Ubuntu 24.04 升上 26.04.1 LTS：升級過程記錄",
+    "date": "2026-11-26",
+    "tags": ["技術", "Linux", "伺服器"],
+    "excerpt": "家裡的 Linux 主機 devil-server 從 Ubuntu 24.04 升到 26.04.1 LTS：先備份 WordPress、更新到最新、跑 do-release-upgrade，smb.conf 保留本地版，升完把 Docker、Tailscale、Chrome 的軟體源修回來，驗證博客正常。",
+    "file": "posts/devil-server-upgrade-ubuntu-2604.html"
   }
 ]

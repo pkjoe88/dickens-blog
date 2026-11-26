@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>devil-server 從 Ubuntu 24.04 升上 26.04.1 LTS：升級過程記錄 - Dickens 的生活雜記</title>
+<meta name="description" content="家裡的 Linux 主機 devil-server 從 Ubuntu 24.04 升到 26.04.1 LTS：先備份 WordPress、更新到最新、跑 do-release-upgrade，smb.conf 保留本地版，升完把 Docker、Tailscale、Chrome 的軟體源修回來，驗證博客正常。">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="container">
+    <div class="top-bar-left">
+      <span>📅 <span id="currentDate"></span></span>
+    </div>
+    <div class="top-bar-right">
+      <a href="https://github.com/pkjoe88" target="_blank" class="social-icon" title="GitHub">GH</a>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="container">
+    <div class="header-main">
+      <nav class="nav">
+        <a href="../index.html" class="site-logo">
+          <div class="logo-icon">D</div>
+          <span class="site-title">Dickens</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="../index.html">首頁</a></li>
+          <li><a href="../posts.html">文章</a></li>
+          <li><a href="../about.html">關於</a></li>
+          <li><a href="../cloud-computers.html">雲電腦</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="search-btn" onclick="window.location='../posts.html'" title="搜尋">🔍</button>
+          <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切換主題">🌙</button>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<!-- Post Header -->
+<div class="container" style="padding-top:32px;">
+  <div class="post-detail-header">
+    <span class="category-badge">技術</span>
+    <h1>devil-server 從 Ubuntu 24.04 升上 26.04.1 LTS：升級過程記錄</h1>
+    <div class="post-meta">
+      <div class="author">
+        <div class="author-avatar">D</div>
+        <span>Dickens</span>
+      </div>
+      <span>📅 2026-11-26</span>
+      <span>📖 6 分鐘閱讀</span>
+      <span>👁 1 次瀏覽</span>
+    </div>
+  </div>
+
+  <div class="post-detail-content">
+<p>家裡的 Linux 主機 devil-server（Ubuntu 24.04）今天升上 26.04.1 LTS。26.04 是今年四月出的 LTS，代號 Resolute Raccoon，九月底才開放 24.04 直接升，支援到 2031 年。博客就跑在這台上（Docker 裡的 WordPress，前面有 nginx 和 Cloudflare Tunnel），所以升級前先備份，升完再把軟體源一個一個修好。以下是完整過程。</p>
+
+    <h2>第一步：備份</h2>
+    <p>先把 WordPress 停下來再打包，免得備到一半寫入的資料庫：</p>
+    <pre><code>cd /data/appdata/wordpress &amp;&amp; sudo docker compose stop
+sudo tar -czf /data/backup/ubuntu2604-upgrade-20261126/wordpress-appdata.tar.gz -C /data/appdata wordpress
+sudo tar -czf /data/backup/ubuntu2604-upgrade-20261126/etc-backup.tar.gz /etc/nginx/sites-available/dickens.cc.cd /etc/cloudflared /etc/apt/sources.list.d
+sudo docker compose start</code></pre>
+    <p>備份在 <code>/data/backup/ubuntu2604-upgrade-20261126/</code>：WordPress 資料 39M，設定 2.2K。容器停了又起來，博客只斷了一兩分鐘。空間也夠，根目錄還有 874G。</p>
+
+    <h2>第二步：把 24.04 更新到最新</h2>
+    <pre><code>sudo apt update &amp;&amp; sudo apt dist-upgrade -o APT::Get::Always-Include-Phased-Updates=true -y
+sudo apt install -y update-manager-core
+ls /run/reboot-required &amp;&amp; echo "需要重開機" || echo "不用重開機"</code></pre>
+    <p>結果是 0 個待升級，也不用重開機，24.04 已經是最新了。</p>
+
+    <h2>第三步：確認有提供 26.04.1</h2>
+    <pre><code>do-release-upgrade -c</code></pre>
+    <p>回「有新版『26.04.1 LTS』提供」，可以升。</p>
+
+    <h2>第四步：正式升級</h2>
+    <pre><code>sudo do-release-upgrade</code></pre>
+    <p>中途會停幾次等你回。套件的更新說明（wireplumber、git 那些）按 <code>q</code> 跳過就好，不用看完。</p>
+    <p>其中一個一定要選對：<code>/etc/samba/smb.conf</code> 問要新版還是保留本地版，選「keep the local version currently installed」。Samba 的分享設定（data、appdata）和 interfaces 那行都是自己改的，選新版會整個被洗掉，備份分享就沒了。</p>
+    <p>最後問刪舊套件、重開機，都按 y。整個過程大概半小時，博客和遠端桌面中途會斷。如果畫面斷了不用慌，升級是在 screen 裡跑的，重連進來再跑一次 <code>sudo do-release-upgrade</code> 就會接回去繼續。</p>
+
+    <h2>小插曲：apt update 沒加 sudo</h2>
+    <p>裝完跑 <code>apt update</code> 報錯，鎖檔打不開、權限被拒。不是升級壞掉，是少打了 <code>sudo</code>，apt 要寫系統目錄一定要 root 權限。<code>sudo apt update</code> 就通了，全部都是最新。</p>
+
+    <h2>第五步：修軟體源</h2>
+    <p>升級會把第三方軟體源停用。這台有四個：Docker、Tailscale 的原檔被改名成 <code>.disabled</code>，還停在 noble；Chrome 和 Chrome 遠端桌面被加了 <code>Enabled: no</code>。Docker 和 Tailscale 兩家都有出 26.04（resolute）的套件，先查過才改；Chrome 兩家是 stable 版次，不用改代號。</p>
+    <p>Docker、Tailscale 重建成 resolute：</p>
+    <pre><code>sudo tee /etc/apt/sources.list.d/docker.sources &gt; /dev/null &lt;&lt;'EOF'
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: resolute
+Components: stable
+Architectures: amd64
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+sudo tee /etc/apt/sources.list.d/tailscale.sources &gt; /dev/null &lt;&lt;'EOF'
+Types: deb
+URIs: https://pkgs.tailscale.com/stable/ubuntu
+Suites: resolute
+Components: main
+Signed-By: /usr/share/keyrings/tailscale-archive-keyring.gpg
+EOF</code></pre>
+    <p>Chrome 兩家把 <code>Enabled: no</code> 刪掉：</p>
+    <pre><code>sudo sed -i '/^Enabled: no$/d' /etc/apt/sources.list.d/google-chrome.sources /etc/apt/sources.list.d/chrome-remote-desktop.sources</code></pre>
+    <p>再更新一次，把四家的套件升到 26.04 版：</p>
+    <pre><code>sudo apt update &amp;&amp; sudo apt full-upgrade -y</code></pre>
+
+    <h2>驗證</h2>
+    <pre><code>lsb_release -a
+sudo docker ps --format '{{.Names}} {{.Status}}'
+tailscale status</code></pre>
+    <p><code>lsb_release</code> 是 Ubuntu 26.04.1 LTS，三個容器（WordPress、資料庫、Portainer）重啟後都在跑，Tailscale 也連著。博客測了回 200，標題正常。</p>
+    <p>備份先留著，過幾天確定沒問題再清。</p>
+
+    <blockquote>「升級最花時間的不是下載，是升完把軟體源一個一個修回來。」</blockquote>
+  </div>
+
+  <div class="post-detail-tags">
+    <a href="../posts.html?tag=技術" class="post-detail-tag">技術</a>
+    <a href="../posts.html?tag=Linux" class="post-detail-tag">Linux</a>
+    <a href="../posts.html?tag=伺服器" class="post-detail-tag">伺服器</a>
+  </div>
+
+  <div class="post-nav">
+    <a href="devil-server-ssh-key-finalshell.html">
+      <div class="nav-label">← 上一篇</div>
+      <div class="nav-title">家裡 Linux 主機 devil-server 改用金鑰登入：FinalShell 設定記錄</div>
+    </a>
+    <div></div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Dickens 的生活雜記</h4>
+        <p>記錄生活中的點點滴滴</p>
+      </div>
+      <div class="footer-col">
+        <h4>快速連結</h4>
+        <ul>
+          <li><a href="../index.html">首頁</a></li>
+          <li><a href="../posts.html">所有文章</a></li>
+          <li><a href="../about.html">關於</a></li>
+          <li><a href="../cloud-computers.html">雲電腦</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>主題分類</h4>
+        <ul>
+          <li><a href="../posts.html?tag=技術">技術</a></li>
+          <li><a href="../posts.html?tag=生活">生活</a></li>
+          <li><a href="../posts.html?tag=網路">網路</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Dickens &middot; 用 GitHub Pages 建立</p>
+    </div>
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="回到頂部">↑</button>
+
+<script src="../js/main.js"></script>
+<script>
+document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-TW', {year:'numeric', month:'long', day:'numeric'});
+</script>
+</body>
+</html>
